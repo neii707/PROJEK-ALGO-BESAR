@@ -2,6 +2,24 @@
 def menu_admin():
   print()
   print("=== WELCOMEE ADMINN ===")
+    print("1. Lihat Alur Pesanan")
+    print("2. Generate Laporan")
+    print("3. Update Status Pengiriman")
+    print("4. Keluar")
+    while true:
+        pilihan = input("Pilih menu (1/2/3/4): ").lower()
+        if pilihan == '1':
+            lihat_alur_pesanan()
+        elif pilihan == '2':
+            generate_laporan()
+        elif pilihan == '3':
+            update_status_pengiriman()
+        elif pilihan == '4':
+            print("Keluar dari menu admin.")
+            break
+        else:
+            print("Pilihan tidak valid. Silakan coba lagi.")
+            menu_admin()
   
 def menu_customer():
   print()
@@ -154,3 +172,4 @@ def data_produsen():
 print("=== WELCOME TO OUR PLATFROM ===")
 gambar()
 dashboard()
+
