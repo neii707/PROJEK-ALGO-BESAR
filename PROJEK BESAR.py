@@ -28,6 +28,25 @@ def menu_customer():
 def menu_produsen():
   print()
   print("=== WELCOMEE PRODUSEN ===  ")
+  print("1. Cek Stok Habis/Kadaluarsa")
+  print("2. Update Stok Benih")
+  print("3. Lihat Daftar Order")
+  print("4. Keluar")
+    while true:
+        pilihan = input("Pilih menu (1/2/3/4): ").lower()
+        if pilihan == '1':
+            cek_stok()
+        elif pilihan == '2':
+            update_benih()
+        elif pilihan == '3':
+            lihat_daftar_order()
+        elif pilihan == '4':
+            print("Keluar dari menu produsen.")
+            break
+        else:
+            print("Pilihan tidak valid. Silakan coba lagi.")
+            menu_produsen()
+
 
 def gambar():
   print(""" 
@@ -172,4 +191,5 @@ def data_produsen():
 print("=== WELCOME TO OUR PLATFROM ===")
 gambar()
 dashboard()
+
 
