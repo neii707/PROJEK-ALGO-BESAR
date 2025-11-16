@@ -53,14 +53,28 @@ def Filter_Benih():
     print()
 
 def Keranjang_Belanja():
+    connection, cursor = connect_db()
     try:
-      print()
-      print()
       print("=== WELCOME TO KERANJANG BELANJA ===")
+
+      query = """
+          SELECT b.nama_benih, b.harga, kp.quantity, (b.harga * kp.quantity) AS total_harga
+          FROM keranjang_pesanan kb     
+          JOIN benih b ON kp.id_benih = b.id_benih
+          WHERE kp.id_user = %s
+      """
+      cursor.execute(query, (id_user,))
+      results = cursor.fetchall()
+
+      if not results:
+          print("Keranjang belanja Anda kosong.")
+          return
+      for row in results:
+          print("================          Detail Keranjang Belanja Anda           ================")
+          print(f"Nama Benih   : {row[0]}, harga: {row[1]}, Jumlah: {row[2]}, Total Harga: {row[3]}")
+          print("==================================================================================")   
     except Exception as e :
       print(f"Terjadi Error: {e}")
-    print()
-    print()
 
 def Checkout_Belanja():
     try:
@@ -480,6 +494,7 @@ print("=== WELCOME TO OUR PLATFROM ===")
 print()
 print()
 dashboard()
+
 
 
 
