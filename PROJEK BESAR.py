@@ -2,6 +2,15 @@ import pandas as pd
 import datetime as dt
 import os
 
+def connect_db():
+    try:
+        connection = psycopg2.connect(user="postgres",
+                                      password="langgeng847",
+                                      host="127.0.0.1",
+                                      port="5432",
+                                      database="SEEDBRIDGE")
+        cursor = connection.cursor()
+
 def clear_terminal():
     os.system('cls')
 
@@ -436,3 +445,4 @@ print("=== WELCOME TO OUR PLATFROM ===")
 print()
 print()
 dashboard()
+
