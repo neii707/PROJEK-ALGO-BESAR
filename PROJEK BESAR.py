@@ -325,28 +325,38 @@ def login():
     login()
 
 # BIKIN AKUN BARU
-def register():
-    try: 
-      print("1. Admin")
-      print("2. Customer")
-      print("3. Produsen")
-      pilih = input("Pilih Akun Role yang ingin anda buat 1/2/3: ")
-      if pilih == "1":
-        data_admin()
-      elif pilih == "2": 
-        data_customer()
-      elif pilih == "3":
-        data_produsen()
+ef data_admin():
+    connect_db()
+    try:
+      print()
+      usn = input("Masukkan Username: ")
+      if len(usn) > 8 :
+        print('Username tersimpan')
+        print()
       else :
         clear_terminal()
-        gambar()
+        print("username harus lebih dari 8")
         print()
+        data_admin()
+
+      pw = input("Masukkan Password:  ")
+      if len(pw) > 8 :
+        print('Password tersimpan')
         print()
-        print("=== INPUT TIDAK VALID COBA LAGI ===")
+      else :
+        clear_terminal()
+        print("Password harus lebih dari 8. Silahkan Mulai Kembali")
         print()
-        register()
+        data_admin()
     except Exception as e :
       print(f"Terjadi Error: {e}")
+    gambar()
+    print()
+    print()
+    print("=== Selamat Akun Anda Telah Dibuat ===")
+    print()
+    print()
+    dashboard()
 
 def data_admin():
     try:
@@ -451,5 +461,6 @@ print("=== WELCOME TO OUR PLATFROM ===")
 print()
 print()
 dashboard()
+
 
 
