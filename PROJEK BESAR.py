@@ -1,6 +1,7 @@
 import pandas as pd
 import datetime as dt
 import os
+import prettytable
 
 def connect_db():
     try:
@@ -33,10 +34,9 @@ def Katalog_Benih():
       print()
       print()
       print("=== WELCOME TO KATALOG BENIH ===")
-      print("1. Lihat Alur Pesanan")
-      print("2. Generate Laporan")
-      print("3. Update Status Pengiriman")
-      print("4. Keluar")
+      print("1. Tampilkan Benih")
+      print("2. Kembali")
+    
     except Exception as e :
       print(f"Terjadi Error: {e}")
     print()
@@ -480,6 +480,7 @@ print("=== WELCOME TO OUR PLATFROM ===")
 print()
 print()
 dashboard()
+
 
 
 
