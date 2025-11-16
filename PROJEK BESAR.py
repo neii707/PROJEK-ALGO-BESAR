@@ -31,29 +31,61 @@ def kembali():
 
 # FITUR CUSTOMER
 def Katalog_Benih():
-    try:
-      print()
-      print()
-      print("=== WELCOME TO KATALOG BENIH ===")
-      print("1. Tampilkan Benih")
-      print("2. Kembali")
-      pilih = input('Pilih Menu 1/2: ')
-      connection, cursor = connect_db()
-      if pilih == '1':
-          query = "SELECT * FROM benih"
-          cursor.execute(query)
-          connection.commit()
+    connection, cursor = connect_db()
+    query = """
+       SELECT
+            b.id_benih, b.nama_benih, b.kategori, b.harga, b.kadaluarsa,
+            SUM(r.jumlah_produksi) as stok    
+        FROM benih b
+        LEFT JOIN riwayat_produksi r ON b.id_benih = r.id_benih
+        GROUP BY b.id_benih, b.nama_benih, b.kategori, b.harga, b.kadaluarsa
+        ORDER BY b.kategori ASC, b.nama_benih ASC
+    """
+    cursor.execute(query)
+    data = cursor.fetchall()
 
-      elif pilih == '2':
+    try:
         clear_terminal()
-        menu_customer()
-      else :
-        print('=== DATA TIDAK VALID ===')
-    
-    except Exception as e :
-      print(f"Terjadi Error: {e}")
+        print("\n" + "="*75)
+        print("                           🌱 KATALOG BENIH 🌱")
+        print("="*75)
+    except Exception as e:
+        print(f"Terjadi Error: {e}")
+        return menu_cutomer()
+
+    if not data:
+        print("Belum ada benih yang tersedia.")
+        print("="*75 + "\n")
+        return menu_customer()
+    kategori_sekarang = None
+
+    for row in data:
+        id_benih, nama_benih, nama_kategori, harga, kadaluarsa, stok = row
+
+        if nama_kategori != kategori_sekarang:
+            kategori_sekarang = nama_kategori
+            print(f"\n📂 Kategori: {nama_kategori}")
+            print("-"*75)
+            print(f"{'ID Benih':^10} {'Nama Benih':^25} {'Harga':^10} {'Tanggal Kadaluarsa':^20} {'Stok':^7}")
+            print("-"*75)
+            
+        stok = stok if stok is not None else 0
+        if stok > 15:
+            status_stok = f"{stok} tersedia"
+        elif 1 <= stok <= 15:
+            status_stok = f"{stok} hampir habis"
+        else:
+            status_stok = "Habis"
+       
+        tanggal_str = kadaluarsa.strftime("%Y-%m-%d")
+
+        print(f"{id_benih:^10} {nama_benih:^25} {harga:^10} {tanggal_str:^20} {stok:^7}")
+        print("="*75)
+        print("      Gunakan ID Benih untuk menambahkan ke keranjang belanja Anda.")
+        print("="*75)
     print()
     print()
+    return menu_customer()
 
 def Filter_Benih():
     try:
@@ -105,37 +137,7 @@ def Riwayat_Transaksi():
     print()
     print()
 
-def Ulasan():
-    try:
-      print()
-      print()
-      print("=== WELCOME TO ULASAN ===")
-    except Exception as e :
-      print(f"Terjadi Error: {e}")
-    print()
-    print()
-
 # FITUR ADMIN
-def lihat_alur_pesanan():
-  try:
-    print()
-    print()
-    print("=== LIHAT ALUR PESANAN ===")
-    print()
-    print("1. Tampilkan Alur Pesanan")
-    print("2. Kembali")
-    pilih = input('Pilih Menu 1/2 : ')
-    if pilih == '1':
-      print()
-    elif pilih == '2':
-      clear_terminal()
-      menu_admin()
-  
-  except Exception as e :
-    print(f"Terjadi Error: {e}")
-  print()
-  print()
-
 def generate_laporan():
   try:
     print()
@@ -246,35 +248,31 @@ def menu_admin():
     except Exception as e :
      print(f"Terjadi Error: {e}")
   
-def menu_customer():
+def menu_customer(id_user):
     print()
-    print("=== WELCOMEE CUSTOMERR ===")
+    print("=== WELCOME CUSTOMER ===")
     print()
     try:
         print("1. Katalog Benih")
-        print("2. Filter Benih")
-        print("3. Keranjang Belanja")
-        print("4. Checkout Belanja")
-        print("5. Status Transaksi")
-        print("6. Riwayat Transaksi")
-        print("7. Ulasan")
-        print("8. Keluar")
+        print("2. Keranjang Belanja")
+        print("3. Checkout Belanja")
+        print("4. Status Transaksi")
+        print("5. Riwayat Transaksi")
+        print("6. Keluar")
+        print()
         pilih = input("Pilih Menu Customer: ")
+
         if pilih == "1":
             Katalog_Benih()
         elif pilih == "2":
-            Filter_Benih()
+            Keranjang_Belanja(id_user)
         elif pilih == "3":
-            Keranjang_Belanja()
+            Checkout_Belanja(id_user)
         elif pilih == "4":
-            Checkout_Belanja()
+            Transaksi(id_user)
         elif pilih == "5":
-            Status_Transaksi()
+            Riwayat_Transaksi(id_user)
         elif pilih == "6":
-            Riwayat_Transaksi()
-        elif pilih == "7":
-            Ulasan()
-        elif pilih == "8":
             clear_terminal()
             print('Keluar dari menu Customer')
             print()
@@ -285,11 +283,10 @@ def menu_customer():
             print()
             print('=== PILIHAN TIDAK VALID ===')
             print()
-            menu_customer()
+            menu_customer(id_user)
     except Exception as e :
         print(f"Terjadi Error: {e}")
   
-
 def menu_produsen():
     print()
     print("=== WELCOMEE PRODUSEN ===  ")
@@ -403,7 +400,139 @@ def register():
     except Exception as e :
       print(f"Terjadi Error: {e}")
         
-def data_admin():
+def data_admin(role):
+    try:
+      print()
+      nama = input("Masukkan Nama: ")
+      usn = input("Masukkan Username: ")
+      if len(usn) > 8 :
+        print('Username tersimpan')
+      cursor.execute("SELECT username FROM users WHERE username = %s", (usn,))
+      if cursor.fetchone():
+        clear_terminal()
+        print("Username sudah terdaftar. Silahkan Mulai Kembali")
+        print()
+      else :
+        clear_terminal()
+        print("username harus lebih dari 8")
+        print()
+        data_admin(role)
+
+      pw = input("Masukkan Password: ")
+      if len(pw) > 8 :
+        print('Password tersimpan')
+        print()
+      else :
+        clear_terminal()
+        print("Password harus lebih dari 8. Silahkan Mulai Kembali")
+        print()
+        data_admin(role)
+      no_telp = input("Masukkan No. Telepon: ")
+      if no_telp .isdigit() and len(no_telp) >= 10 :
+        print('No. Telepon tersimpan')
+        data_admin(role)
+      cursor.execute("SELECT no_telp FROM users WHERE no_telp = %s", (no_telp,))
+      if ncursor.fetchone(): 
+        clear_terminal()
+        print("No. Telepon sudah terdaftar. Silahkan Mulai Kembali")
+      else :
+        clear_terminal()
+        print("No. Telepon harus berupa angka dan minimal 10 digit. Silahkan Mulai Kembali")
+    except Exception as e :
+        print(f"Terjadi Error: {e}")
+
+    connection, cursor = connect_db()
+
+    query = """
+        INSERT INTO users (nama, username, password, no_telp, id_role)
+         VALUES (%s, %s, %s, %s, %s)
+    """
+    cursor.execute(query, (nama, usn, pw, no_telp, role))
+    connection.commit()
+
+    cursor.execute("SELECT id_user FROM users WHERE username = %s", (usn,))
+    id_user = cursor.fetchone()[0]
+
+    cursor.execute("""
+        INSERT INTO keranjang_pesanan (id_user, quantity))
+        VALUES (%s, 0)
+    """, id_user)
+    connnection.commit()
+
+    gambar()
+    print("=== Selamat Akun Anda Telah Dibuat ===")
+    dashboard()
+
+def data_customer(role):
+    connection, cursor = connect_db()
+    try:
+      print()
+      nama = input("Masukkan Nama: ")
+      usn = input("Masukkan Username: ")
+      if len(usn) > 8:
+        print('Username tersimpan')
+        print()
+      else:
+        clear_terminal()
+        print("username harus lebih dari 8")
+        print()
+        continue
+
+        cursor.execute("SELECT username FROM users WHERE username = %s", (usn,))
+        if cursor.fetchone():
+           clear_terminal()
+        print("Username sudah terdaftar, gunakan yang lain.")
+        continue
+
+        pw = input("Masukkan Password:  ")
+        if len(pw) > 8:
+           print('Password tersimpan')
+           print()
+        else:
+            clear_terminal()
+            print("Password harus lebih dari 8. Silahkan Mulai Kembali")
+            print()
+            continue
+
+        no_telp = input("Masukkan No. Telepon: ")
+        if no_telp.isdigit() and len(no_telp) >= 10:
+          print('No. Telepon tersimpan')
+          print()
+        else:
+          clear_terminal()
+          print("No. Telepon harus berupa angka dan minimal 10 digit. Silahkan Mulai Kembali")
+          continue
+
+          cursor.execute("SELECT no_telp FROM users WHERE no_telp = %s", (no_telp,))
+          if cursor.fetchone():
+            clear_terminal()
+            print("No. Telepon sudah terdaftar. Silahkan Mulai Kembali")
+            continue
+    except Exception as e:
+        print(f"Terjadi Error: {e}")
+
+    query = """
+        INSERT INTO users (nama, username, password, no_telp, id_role)
+         VALUES (%s, %s, %s, %s, %s)
+    """
+    cursor.execute(query, (nama, usn, pw, no_telp, role))
+    connection.commit()
+
+    cursor.execute("SELECT id_user FROM users WHERE username = %s", (usn,))
+    id_user = cursor.fetchone()[0]
+
+    cursor.execute("""
+        INSERT INTO keranjang_pesanan (id_user, quantity))
+        VALUES (%s, 0)
+    """, id_user)
+    connnection.commit()
+    
+    gambar()
+    print("=== Selamat Akun Anda Telah Dibuat ===")
+    dashboard()
+
+def data_produsen(role):
+    connection, cursor = connect_db()
     try:
       print()
       nama = input("Masukkan Nama: ")
@@ -411,11 +540,15 @@ def data_admin():
       if len(usn) > 8 :
         print('Username tersimpan')
         print()
+      elif usn in data_produsen:
+        clear_terminal()
+        print("Username sudah terdaftar. Silahkan Mulai Kembali")
+        print()
       else :
         clear_terminal()
         print("username harus lebih dari 8")
         print()
-        data_admin()
+        data_produsen(role)
 
       pw = input("Masukkan Password:  ")
       if len(pw) > 8 :
@@ -425,113 +558,45 @@ def data_admin():
         clear_terminal()
         print("Password harus lebih dari 8. Silahkan Mulai Kembali")
         print()
-        data_admin()
+        data_produsen(role)
 
       no_telp = input("Masukkan No. Telepon: ")
       if no_telp .isdigit() and len(no_telp) >= 10 :
         print('No. Telepon tersimpan')
         print()
-      if no_telp in data_admin:
+      cursor.execute("SELECT no_telp FROM users WHERE no_telp = %s", (no_telp,))
+      if cursor.fetchone():
         clear_terminal()
         print("No. Telepon sudah terdaftar. Silahkan Mulai Kembali")
-        print()
       else :
         clear_terminal()
         print("No. Telepon harus berupa angka dan minimal 10 digit. Silahkan Mulai Kembali")
-        print()
+        data_produsen(role)
     except Exception as e :
-        print(f"Terjadi Error: {e}")
-
-    connection, cursor = connect_db()
+      print(f"Terjadi Error: {e}")
 
     query = """
-        INSERT INTO users (nama, username, password, no_telp)
-         VALUES (%s, %s, %s, %s)
+        INSERT INTO users (nama, username, password, no_telp, id_role)
+         VALUES (%s, %s, %s, %s, %s)
     """
-    cursor.execute(query, (nama, usn, pw, no_telp))
+    cursor.execute(query, (nama, usn, pw, no_telp, role))
     connection.commit()
 
+    cursor.execute("SELECT id_user FROM users WHERE username = %s", (usn,))
+    id_user = cursor.fetchone()[0]
+
+    cursor.execute("""
+        INSERT INTO keranjang_pesanan (id_user, quantity))
+        VALUES (%s, 0)
+    """, id_user)
+    connnection.commit()
+
     gambar()
-    print()
-    print()
     print("=== Selamat Akun Anda Telah Dibuat ===")
-    print()
-    print()
     dashboard()
-
-def data_customer():
-    try:
-      print()
-      usn = input("Masukkan Username: ")
-      if len(usn) > 8 :
-        print('Username tersimpan')
-        print()
-      else :
-        clear_terminal()
-        print("username harus lebih dari 8")
-        print()
-        data_customer()
-
-      pw = input("Masukkan Password:  ")
-      if len(pw) > 8 :
-        print('Password tersimpan')
-        print()
-      else :
-        clear_terminal()
-        print("Password harus lebih dari 8. Silahkan Mulai Kembali")
-        print()
-        data_customer()
-    except Exception as e :
-      print(f"Terjadi Error: {e}")
-    gambar()
-    print()
-    print()
-    print("=== Selamat Akun Anda Telah Dibuat ===")
-    print()
-    print()
-    dashboard()
-    dashboard()
-
-def data_produsen():
-    try:
-      print()
-      usn = input("Masukkan Username: ")
-      if len(usn) > 8 :
-        print('Username tersimpan')
-        print()
-      else :
-        clear_terminal()
-        print("username harus lebih dari 8")
-        print()
-        data_produsen()
-
-      pw = input("Masukkan Password:  ")
-      if len(pw) > 8 :
-        print('Password tersimpan')
-        print()
-      else :
-        clear_terminal()
-        print("Password harus lebih dari 8. Silahkan Mulai Kembali")
-        print()
-        data_produsen()
-    except Exception as e :
-      print(f"Terjadi Error: {e}")
-    gambar()
-    print()
-    print()
-    print("=== Selamat Akun Anda Telah Dibuat ===")
-    print()
-    print()
-    dashboard()
-
 
 gambar()
-print("=== WELCOME TO OUR PLATFROM ===")
+print("=== WELCOME TO OUR PLATFORM ===")
 print()
 print()
 dashboard()
-
-
-
-
-
