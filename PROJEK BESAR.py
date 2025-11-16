@@ -121,6 +121,16 @@ def lihat_alur_pesanan():
     print()
     print()
     print("=== LIHAT ALUR PESANAN ===")
+    print()
+    print("1. Tampilkan Alur Pesanan")
+    print("2. Kembali")
+    pilih = input('Pilih Menu 1/2 : ')
+    if pilih == '1':
+      print()
+    elif pilih == '2':
+      clear_terminal()
+      menu_admin()
+  
   except Exception as e :
     print(f"Terjadi Error: {e}")
   print()
@@ -131,6 +141,15 @@ def generate_laporan():
     print()
     print()
     print("=== TAMPILKAN LAPORAN ===")
+    print()
+    print("1. Tampilkan Laporan")
+    print("2. Kembali")
+    pilih = input('Pilih Menu 1/2 : ')
+    if pilih == '1':
+      print()
+    elif pilih == '2':
+      clear_terminal()
+      menu_admin()
   except Exception as e :
     print(f"Terjadi Error: {e}")
   print()
@@ -153,6 +172,15 @@ def cek_stok():
     print()
     print()
     print("=== CEK STOK HABIS/KADALUARSA ===")
+    print()
+    print("1. Tampilkan Stok")
+    print("2. Kembali")
+    pilih = input('Pilih Menu 1/2 : ')
+    if pilih == '1':
+      print()
+    elif pilih == '2':
+      clear_terminal()
+      menu_admin()
   except Exception as e :
     print(f"Terjadi Error: {e}")
   print()
@@ -162,7 +190,7 @@ def update_benih():
   try:
     print()
     print()
-    print("=== TAMPILKAN LAPORAN ===")
+    print("=== WELCOME TO MENU UPDATE BENIH ===")
   except Exception as e :
     print(f"Terjadi Error: {e}")
   print()
@@ -172,7 +200,16 @@ def lihat_daftar_order():
   try:
     print()
     print()
-    print("=== UPDATE STATUS PENGIRIMAN ===")
+    print("=== DAFTAR ORDER ===")
+    print()
+    print("1. Tampilkan Daftar Order")
+    print("2. Kembali")
+    pilih = input('Pilih Menu 1/2 : ')
+    if pilih == '1':
+      print()
+    elif pilih == '2':
+      clear_terminal()
+      menu_admin()
   except Exception as e :
     print(f"Terjadi Error: {e}")
   print()
