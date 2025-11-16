@@ -88,24 +88,79 @@ def Katalog_Benih():
     return menu_customer()
 
 def Filter_Benih():
+    connection, cursor = connect_db()
     try:
-      print()
-      print()
       print("=== WELCOME TO FILTER BENIH ===")
-    except Exception as e :
-      print(f"Terjadi Error: {e}")
-    print()
-    print()
+      print("-------------------------------")
+      print("  Filter Berdasarkan Kategori: ")
+      print("1. Harga Terendah")
+      print("2. Harga Tertinggi")
+      print("3. Stok Tersedia")
+      print("4. Semua")
+      print("5. Kembali ke Menu Customer")
+      pilih = input("Pilih kategori (1/2/3/4/5): ")
 
-def Keranjang_Belanja():
-    try:
-      print()
-      print()
-      print("=== WELCOME TO KERANJANG BELANJA ===")
+      if pilih == "1":
+        query = "SELECT * FROM benih ORDER BY harga ASC"    
+      elif pilih == "2":
+        query = "SELECT * FROM benih ORDER BY harga DESC"
+      elif pilih == "3":
+        query = "SELECT * FROM benih WHERE stok > 0"
+      elif pilih == "4":
+        query = "SELECT * FROM benih"
+      elif pilih == "5":
+        clear_terminal()
+        menu_customer(id_user)
+        return
+      else:
+        clear_terminal()
+        print("=== PILIHAN TIDAK VALID ===")
+        print()
+        Filter_Benih()
+        return
+      cursor.execute(query)
+      data = cursor.fetchall()
+
+      if not data:
+        print("Tidak ada benih yang sesuai dengan filter.")
+        return
+
+      print("\n===== Hasil Filter Benih =====")
+      for row in data:
+          print(f"ID Benih          : {row[0]}")
+          print(f"Nama Benih        : {row[1]}")
+          print(f"Kategori          : {row[2]}")
+          print(f"Harga             : {row[3]}")
+          print(f"Stok              : {row[4]}")
+          print(f"Tanggal Kadaluarsa: {row[5]}")   
+          print("-----------------------------")
+
     except Exception as e :
       print(f"Terjadi Error: {e}")
-    print()
-    print()
+
+def Keranjang_Belanja(id_user):
+    connection, cursor = connect_db()
+    try:
+        print("=== WELCOME TO KERANJANG BELANJA ===")
+        query = """
+            SELECT b.nama_benih, b.harga, k.quantity, (b.harga * k.quantity) AS total_harga
+            FROM keranjang_pesanan k     
+            JOIN benih b ON k.id_benih = b.id_benih
+            WHERE k.id_user = %s
+        """
+        cursor.execute(query, (id_user,))
+        results = cursor.fetchall()
+
+        if not results:
+            print("Keranjang belanja Anda kosong.")
+            return
+            menu_customer(id_user)
+        for row in results:
+            print("================          Detail Keranjang Belanja Anda           ================")
+            print(f"Nama Benih   : {row[0]}, harga: {row[1]}, Jumlah: {row[2]}, Total Harga: {row[3]}")
+            print("==================================================================================")   
+    except Exception as e:
+        print(f"Terjadi Error: {e}")
 
 def Checkout_Belanja():
     try:
@@ -600,3 +655,4 @@ print("=== WELCOME TO OUR PLATFORM ===")
 print()
 print()
 dashboard()
+
