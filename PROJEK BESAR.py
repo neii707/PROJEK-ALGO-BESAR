@@ -10,6 +10,12 @@ def connect_db():
                                       port="5432",
                                       database="SEEDBRIDGE")
         cursor = connection.cursor()
+        return connection, cursor
+    except (Exception, Error) as error:
+        print("Gagal terhubung ke database", error)
+        return None, None
+    finally:
+        pass
 
 def clear_terminal():
     os.system('cls')
@@ -445,4 +451,5 @@ print("=== WELCOME TO OUR PLATFROM ===")
 print()
 print()
 dashboard()
+
 
