@@ -356,6 +356,7 @@ def register():
 def data_admin():
     try:
       print()
+      nama = input("Masukkan Nama: ")
       usn = input("Masukkan Username: ")
       if len(usn) > 8 :
         print('Username tersimpan')
@@ -375,8 +376,31 @@ def data_admin():
         print("Password harus lebih dari 8. Silahkan Mulai Kembali")
         print()
         data_admin()
+
+      no_telp = input("Masukkan No. Telepon: ")
+      if no_telp .isdigit() and len(no_telp) >= 10 :
+        print('No. Telepon tersimpan')
+        print()
+      if no_telp in data_admin:
+        clear_terminal()
+        print("No. Telepon sudah terdaftar. Silahkan Mulai Kembali")
+        print()
+      else :
+        clear_terminal()
+        print("No. Telepon harus berupa angka dan minimal 10 digit. Silahkan Mulai Kembali")
+        print()
     except Exception as e :
-      print(f"Terjadi Error: {e}")
+        print(f"Terjadi Error: {e}")
+
+    connection, cursor = connect_db()
+
+    query = """
+        INSERT INTO users (nama, username, password, no_telp)
+         VALUES (%s, %s, %s, %s)
+    """
+    cursor.execute(query, (nama, usn, pw, no_telp))
+    connection.commit()
+
     gambar()
     print()
     print()
@@ -456,6 +480,7 @@ print("=== WELCOME TO OUR PLATFROM ===")
 print()
 print()
 dashboard()
+
 
 
 
