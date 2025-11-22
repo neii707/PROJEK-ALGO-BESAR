@@ -237,13 +237,13 @@ def update_stok(id_pesanan):
         cursor.execute(query_select, (id_pesanan,))
         pesanan = cursor.fetchall()
 
-        for benih_id, qty in pesanan:
+        for id_benih, qty in pesanan:
             update_stok = """
                 UPDATE riwayat_produksi
                 SET jumlah_produksi = jumlah_produksi - %s
                 WHERE id_benih = %s
             """
-            cursor.execute(update_stok, (qty, benih_id))
+            cursor.execute(update_stok, (qty, id_benih))
 
         commit_db(connection, cursor)
         print("Stok berhasil diperbarui!")
@@ -919,3 +919,4 @@ print("=== WELCOME TO OUR PLATFORM ===")
 print()
 print()
 dashboard()
+
