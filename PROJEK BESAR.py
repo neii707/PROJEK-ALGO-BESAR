@@ -506,11 +506,12 @@ def cek_stok(id_user):
 
         if pilih == '1':
             query = """
-                SELECT b.id_benih, b.nama_benih, b.harga, b.kadaluarsa,
+                SELECT b.id_benih, b.nama_benih, b.harga,
+				MIN(r.tanggal_kadaluarsa) AS kadaluarsa_terdekat,
                 SUM(r.jumlah_produksi) AS stok
                 FROM benih b
                 LEFT JOIN riwayat_produksi r ON b.id_benih = r.id_benih
-                GROUP BY b.id_benih, b.nama_benih, b.harga, b.kadaluarsa
+                GROUP BY b.id_benih, b.nama_benih, b.harga
                 ORDER BY b.nama_benih ASC;
             """
 
@@ -1074,5 +1075,6 @@ print("=== WELCOME TO OUR PLATFORM ===")
 print()
 print()
 dashboard()
+
 
 
