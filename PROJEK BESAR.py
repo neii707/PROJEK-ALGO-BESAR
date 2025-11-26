@@ -492,54 +492,209 @@ def update_status_pengiriman(id_user):
     menu_admin(id_user)
   
 # FITUR PRODUSEN
-def cek_stok():
-  try:
-    print()
-    print()
-    print("=== CEK STOK HABIS/KADALUARSA ===")
-    print()
-    print("1. Tampilkan Stok")
-    print("2. Kembali")
-    pilih = input('Pilih Menu 1/2 : ')
-    if pilih == '1':
-      print()
-    elif pilih == '2':
-      clear_terminal()
-      menu_admin()
-  except Exception as e :
-    print(f"Terjadi Error: {e}")
-  print()
-  print()
+def cek_stok(id_user):
+    connect_db()
+    connection, cursor = connect_db()
+    try:
+        print()
+        print("=== CEK STOK HABIS/KADALUARSA ===")
+        print()
+        print('1. Tampilkan Stok Benih')
+        print('2. Kembali ke menu produsen')
 
-def update_benih():
-  try:
-    print()
-    print()
-    print("=== WELCOME TO MENU UPDATE BENIH ===")
-  except Exception as e :
-    print(f"Terjadi Error: {e}")
-  print()
-  print()
-  
-def lihat_daftar_order():
-  try:
-    print()
-    print()
-    print("=== DAFTAR ORDER ===")
-    print()
-    print("1. Tampilkan Daftar Order")
-    print("2. Kembali")
-    pilih = input('Pilih Menu 1/2 : ')
-    if pilih == '1':
-      print()
-    elif pilih == '2':
-      clear_terminal()
-      menu_admin()
-  except Exception as e :
-    print(f"Terjadi Error: {e}")
-  print()
-  print()
+        pilih = input('Pilih menu anda 1/2: ')
 
+        if pilih == '1':
+            query = """
+                SELECT b.id_benih, b.nama_benih, b.harga, b.kadaluarsa,
+                SUM(r.jumlah_produksi) AS stok
+                FROM benih b
+                LEFT JOIN riwayat_produksi r ON b.id_benih = r.id_benih
+                GROUP BY b.id_benih, b.nama_benih, b.harga, b.kadaluarsa
+                ORDER BY b.nama_benih ASC;
+            """
+
+            cursor.execute(query)
+            data = cursor.fetchall()
+
+            print("\nID | Nama Benih | Harga | Kadaluarsa | Total Stok")
+            print("-" * 100)
+
+            for row in data:
+                print(f"{row[0]} | {row[1]} | {row[2]} | {row[3]} | {row[4]}")
+
+            print("-" * 100)
+
+        elif pilih == '2':
+            clear_terminal()
+            return menu_produsen(id_user)
+
+        else:
+            print('=== PILIHAN TIDAK VALID ===')
+
+    except Exception as e:
+        print(f"\nTerjadi Error: {e}")
+
+    input("\nTekan ENTER untuk kembali ke menu...")
+    clear_terminal()
+    return menu_produsen(id_user)
+
+def update_benih(id_user):
+    connection, cursor = connect_db()
+    try:
+        print()
+        print("=== UPDATE STOK BENIH ===")
+        print()
+        print("Daftar Stok")
+        query = """
+            SELECT b.id_benih, b.nama_benih,
+            STRING_AGG(CAST(r.jumlah_produksi AS TEXT), ', ') AS daftar_produksi,
+            SUM(r.jumlah_produksi) AS total_stok
+            FROM benih b
+            LEFT JOIN riwayat_produksi r ON b.id_benih = r.id_benih
+            GROUP BY b.id_benih, b.nama_benih
+            ORDER BY b.id_benih;
+        """
+        cursor.execute(query)
+        data = cursor.fetchall()
+
+        print("ID | Nama Benih | Daftar Produksi | Total Stok | Status Stok")
+        print("-" * 120)
+
+        for row in data:
+            id_benih = row[0]
+            nama = row[1]
+            daftar_produksi = row[2] if row[2] else "-"
+            total = row[3]
+            if total is None:
+                total = 0
+
+            if total == 0:
+             status_stok = "Habis"
+            elif total < 50:
+             status_stok = "Menipis"
+            else:
+             status_stok = "Aman" 
+
+            print(f"{id_benih} | {nama} | {daftar_produksi} | {total} | {status_stok}")
+            
+        print("-" * 120)
+        print()
+        id_benih = input("Masukkan ID Benih: ")
+        if not id_benih.isdigit():
+            print("\n=== DATA TIDAK VALID ===\n")
+            input("Tekan ENTER untuk kembali ke menu...")
+            clear_terminal()
+            return menu_produsen(id_user)
+        cursor.execute("SELECT id_benih FROM benih WHERE id_benih = %s",(id_benih,))
+        data = cursor.fetchone()
+
+        if not data:
+            print("\n=== ERROR: ID BENIH TIDAK DITEMUKAN ===")
+            input("Tekan ENTER untuk kembali...")
+            clear_terminal()
+            return menu_produsen(id_user)
+
+        
+        stok_baru = input("Masukkan Stok Baru: ")
+        if not stok_baru.isdigit():
+            print("\n=== DATA TIDAK VALID ===\n")
+            input("Tekan ENTER untuk kembali ke menu...")
+            clear_terminal()
+            return menu_produsen(id_user)
+        
+        id_benih = int(id_benih)
+        stok_baru = int(stok_baru)
+
+        if id_benih <= 0:
+           print("\n=== DATA TIDAK VALID (stok harus > 0) ===")
+           input("Tekan ENTER untuk kembali ke menu...")
+           clear_terminal()
+           return menu_produsen(id_user)
+
+        tanggal_kadaluarsa = input("Masukkan Tanggal Kadaluarsa YYYY-MM-DD: ")
+        from datetime import datetime
+        try:
+            tanggal_kadaluarsa = datetime.strptime(tanggal_kadaluarsa, "%Y-%m-%d").date()
+        except ValueError:
+            print("\n=== FORMAT TANGGAL TIDAK VALID (gunakan YYYY-MM-DD) ===")
+            input("Tekan ENTER untuk kembali ke menu...")
+            clear_terminal()
+            return menu_produsen(id_user)
+
+        query = query = """
+            INSERT INTO riwayat_produksi (id_benih, jumlah_produksi, tanggal_produksi,tanggal_kadaluarsa)
+            VALUES (%s, %s, CURRENT_DATE, %s)
+        """
+        cursor.execute(query, (id_benih, stok_baru, tanggal_kadaluarsa))
+        connection.commit()
+
+
+        query_total = """
+            SELECT b.id_benih, b.nama_benih,
+            SUM(r.jumlah_produksi) AS total_stok,
+            MIN(r.tanggal_kadaluarsa) AS kadaluarsa_terdekat
+            FROM benih b
+            LEFT JOIN riwayat_produksi r ON b.id_benih = r.id_benih
+            WHERE b.id_benih = %s
+            GROUP BY b.id_benih, b.nama_benih
+        """
+        cursor.execute(query_total, (id_benih,))
+        laporan = cursor.fetchone()
+        print("\n=== LAPORAN STOK TERBARU ===")
+        print(f"ID Benih           : {laporan[0]}")
+        print(f"Nama Benih         : {laporan[1]}")
+        print(f"Stok Ditambah      : {stok_baru}")
+        print(f"Total Stok         : {laporan[2]}")
+        print(f"Kadaluarsa Terdekat: {laporan[3]}")
+        print("=============================")
+
+        print("\nStok berhasil diperbarui!")
+
+    except Exception as e:
+        print(f"Terjadi Error: {e}")
+
+    print()
+    input("Tekan ENTER untuk kembali ke menu...")
+    clear_terminal()
+    menu_produsen(id_user)
+
+def daftar_pesanan(id_user):
+    connection, cursor = connect_db()
+    print("╔════════════════════════════════════════════════════════╗")
+    print("║                    DAFTAR PESANAN                      ║")
+    print("╚════════════════════════════════════════════════════════╝")
+    print()
+    try:
+        print(f"{'ID Pesanan':<12} {'ID User':<10} {'Benih':<20} {'Jumlah Pesanan':<10} {'Tanggal Pesan':<15}")
+        print("-"*80)
+    
+        query =  """
+            SELECT p.id_pesanan, p.id_user, b.nama_benih, dp.quantity, p.tanggal_pesanan
+            FROM detail_pesanan dp
+            JOIN pesanan p ON dp.id_pesanan = p.id_pesanan
+            JOIN benih b ON dp.id_benih = b.id_benih
+            ORDER BY p.id_pesanan ASC;
+        """
+        cursor.execute(query)   
+        results = cursor.fetchall()
+        for row in results:
+            id_pesanan = row[0]
+            user_id = row[1]
+            nama_benih = row[2]
+            jumlah = row[3]
+            tanggal = str(row[4]) if row[4] else "-" 
+
+            print(f"{id_pesanan:<12} {user_id:<10} {nama_benih:<20} {jumlah:<10} {tanggal:<15}")
+        print("-"*80)
+    except Exception as e:
+        print(f"Terjadi Error: {e}")
+
+    print()
+    input("\nTekan ENTER untuk kembali ke menu...")
+    clear_terminal()
+    menu_produsen(id_user)
+	
 # MENU TIAP ROLE
 def menu_admin(id_user):
     print()
@@ -919,4 +1074,5 @@ print("=== WELCOME TO OUR PLATFORM ===")
 print()
 print()
 dashboard()
+
 
