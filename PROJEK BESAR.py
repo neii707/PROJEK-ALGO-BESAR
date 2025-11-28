@@ -949,11 +949,16 @@ def update_benih(id_user):
            return menu_produsen(id_user)
 
         tanggal_kadaluarsa = input("Masukkan Tanggal Kadaluarsa YYYY-MM-DD: ")
-        from datetime import datetime
+        from datetime import datetime, date
         try:
             tanggal_kadaluarsa = datetime.strptime(tanggal_kadaluarsa, "%Y-%m-%d").date()
         except ValueError:
             print("\n=== FORMAT TANGGAL TIDAK VALID (gunakan YYYY-MM-DD) ===")
+            input("Tekan ENTER untuk kembali ke menu...")
+            clear_terminal()
+            return menu_produsen(id_user)
+        if tanggal_kadaluarsa <= date.today():
+            print("\n=== TANGGAL KADALUARSA HARUS LEBIH DARI HARI INI ===")
             input("Tekan ENTER untuk kembali ke menu...")
             clear_terminal()
             return menu_produsen(id_user)
@@ -1481,3 +1486,4 @@ print("=== WELCOME TO OUR PLATFORM ===")
 print()
 print()
 dashboard()
+
