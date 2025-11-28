@@ -1,6 +1,5 @@
 CREATE TYPE enum_transaksi AS ENUM('dikemas', 'dikirim', 'diterima', 'selesai');
 CREATE TYPE enum_pembayaran AS ENUM ('tunai', 'non tunai');
-CREATE TYPE enum_keranjang AS ENUM('dipesan', 'belum dipesan');
 
 CREATE TABLE role(
 id_role SERIAL PRIMARY KEY,
@@ -14,8 +13,8 @@ nama_kategori Varchar(64) not null
 
 CREATE TABLE keranjang_pesanan(
 id_keranjang SERIAL PRIMARY KEY,
-status_keranjang enum_keranjang NOT NULL
 );
+
 
 CREATE TABLE users(
 id_user SERIAL PRIMARY KEY,
@@ -27,6 +26,13 @@ no_telp VARCHAR(15) NOT NULL,
 id_keranjang INTEGER REFERENCES keranjang_pesanan(id_keranjang),
 id_role INTEGER REFERENCES role(id_role)
 );
+
+ALTER TABLE users
+ADD CONSTRAINT fk_user_keranjang
+FOREIGN KEY (id_keranjang)
+REFERENCES keranjang_pesanan(id_keranjang)
+ON DELETE SET NULL;
+
 
 CREATE TABLE benih(
 id_benih SERIAL PRIMARY KEY,
