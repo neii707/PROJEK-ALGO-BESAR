@@ -1,5 +1,5 @@
 CREATE TYPE enum_transaksi AS ENUM('dikemas', 'dikirim', 'diterima', 'selesai');
-CREATE TYPE enum_pembayaran AS ENUM ('tunai', 'non tunai')
+CREATE TYPE enum_pembayaran AS ENUM ('tunai', 'non tunai');
 CREATE TYPE enum_role AS ENUM ('petani', 'produsen', 'admin');
 
 CREATE table kategori_benih(
@@ -28,8 +28,6 @@ ON DELETE SET NULL;
 CREATE TABLE benih(
 id_benih SERIAL PRIMARY KEY,
 nama_benih VARCHAR(32) NOT NULL,
-tanggal_masuk DATE NOT NULL,
-kadaluarsa DATE NOT NULL,
 harga INTEGER NOT NULL,
 
 id_kategori_benih INTEGER REFERENCES kategori_benih(id_kategori_benih)
@@ -90,7 +88,7 @@ nama varchar(64) NOT NULL,
 id_kecamatan integer references kecamatan(id_kecamatan)
 );
 
-INSERT INTO users (username, password, nama, no_telp, role, detail_alamat) VALUES
+INSERT INTO users(username, password, nama, no_telp, role, detail_alamat) VALUES
 ('petani_andi', 'andi123', 'Andi Santoso', '081234567890', 'petani', 'Jl. Mawar No. 12'),
 ('produsen_budi', 'budi123', 'Budi Prasetyo', '082345678901', 'produsen', 'Jl. Semeru No. 44'),
 ('admin_sri', 'sri123', 'Sri Lestari', '083456789012', 'admin', 'Jl. Kartini No. 9'),
@@ -113,32 +111,32 @@ INSERT INTO kategori_benih(nama_kategori) VALUES
 ('Cabai'),
 ('Sayuran');
 
-INSERT INTO benih (nama_benih, tanggal_masuk, kadaluarsa, harga, id_kategori_benih, id_user) 
+INSERT INTO benih(nama_benih, harga, id_kategori_benih) 
 VALUES
 -- kategori 1 (padi)
-('Padi IR64', '2025-01-20', '2026-01-20', 50000, 1, 2),
-('Padi Inpari 30', '2025-01-25', '2026-01-25', 55000, 1, 5),
-('Padi Mekongga', '2025-01-30', '2026-01-30', 60000, 1, 8),
+('Padi IR64', 50000, 1),
+('Padi Inpari 30', 55000, 1),
+('Padi Mekongga', 60000, 1),
 
 -- kategori 2 (jagung)
-('Jagung Bisi-2', '2025-04-09', '2026-04-09', 45000, 2, 2),
-('Jagung Pioneer P32', '2025-05-23', '2026-05-23', 70000, 2, 11),
-('Jagung NK212', '2025-08-14', '2026-08-14', 65000, 2, 14),
+('Jagung Bisi-2', 45000, 2),
+('Jagung Pioneer P32', 70000, 2),
+('Jagung NK212', 65000, 2),
 
 -- kategori 3 (cabai)
-('Cabai Rawit Lokal', '2025-06-18', '2026-06-18', 30000, 3, 5),
-('Cabai Besar TM 99', '2025-07-30', '2026-07-30', 35000, 3, 2),
-('Cabai Lado F1', '2025-09-22', '2026-09-22', 38000, 3, 8),
-('Cabai Arimbi', '2025-10-11', '2026-10-11', 36000, 3, 11),
+('Cabai Rawit Lokal', 30000, 3),
+('Cabai Besar TM 99', 35000, 3),
+('Cabai Lado F1', 38000, 3),
+('Cabai Arimbi', 36000, 3),
 
 -- kategori 4 (sayuran)
-('Selada Hijau', '2025-01-19', '2026-01-19', 20000, 4, 14),
-('Bayam Merah', '2025-02-02', '2026-02-02', 18000, 4, 2),
-('Kangkung Darat', '2025-02-12', '2026-02-12', 15000, 4, 5),
-('Sawi Putih', '2025-02-25', '2026-02-25', 22000, 4, 8),
-('Tomat Lokal', '2025-03-04', '2026-03-04', 25000, 4, 11);
+('Selada Hijau', 20000, 4),
+('Bayam Merah', 18000, 4),
+('Kangkung Darat', 15000, 4),
+('Sawi Putih', 22000, 4),
+('Tomat Lokal',  25000, 4);
 
-INSERT INTO riwayat_produksi (tanggal_produksi, tanggal_kadaluarsa, jumlah_produksi, id_benih)
+INSERT INTO riwayat_produksi(tanggal_produksi, tanggal_kadaluarsa, jumlah_produksi, id_benih)
 VALUES
 ('2025-01-20', '2026-01-20', 500, 1),
 ('2025-01-25', '2026-01-25', 300, 2),
@@ -221,3 +219,4 @@ INSERT INTO desa (nama, id_kecamatan) VALUES
 ('Ambulu', 10),
 ('Pontang', 10),
 ('Sabrang', 10);
+
