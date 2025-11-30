@@ -13,8 +13,7 @@ username VARCHAR(32) UNIQUE NOT NULL,
 password VARCHAR(32) UNIQUE NOT NULL,
 nama VARCHAR(20) NOT NULL,
 no_telp VARCHAR(15) NOT NULL,
-
-id_role INTEGER REFERENCES role(id_role)
+role enum_role NOT NULL
 );
 
 ALTER TABLE users
@@ -25,7 +24,6 @@ ADD CONSTRAINT fk_user_desa
 FOREIGN KEY (id_desa)
 REFERENCES desa(id_desa)
 ON DELETE SET NULL;
-
 
 CREATE TABLE benih(
 id_benih SERIAL PRIMARY KEY,
@@ -46,7 +44,6 @@ tanggal_pesanan DATE NOT NULL,
 
 id_user INTEGER REFERENCES users(id_user)
 );
-
 
 CREATE TABLE detail_pesanan(
 id_detail_pesanan SERIAL PRIMARY KEY,
@@ -76,51 +73,45 @@ id_benih INTEGER REFERENCES benih(id_benih)
 
 create table kabupaten(
 id_kabupaten serial primary key,
-nama varchar(32)
+nama varchar(32) NOT NULL
 );
 
 create table kecamatan(
 id_kecamatan serial primary key,
-nama  varchar(64),
+nama varchar(64) NOT NULL,
 
 id_kabupaten integer references kabupaten(id_kabupaten)
 );
 
 create table desa(
 id_desa serial primary key,
-nama varchar(64),
+nama varchar(64) NOT NULL,
 
 id_kecamatan integer references kecamatan(id_kecamatan)
 );
 
+INSERT INTO users (username, password, nama, no_telp, role, detail_alamat) VALUES
+('petani_andi', 'andi123', 'Andi Santoso', '081234567890', 'petani', 'Jl. Mawar No. 12'),
+('produsen_budi', 'budi123', 'Budi Prasetyo', '082345678901', 'produsen', 'Jl. Semeru No. 44'),
+('admin_sri', 'sri123', 'Sri Lestari', '083456789012', 'admin', 'Jl. Kartini No. 9'),
+('petani_joko', 'joko123', 'Joko Susanto', '082376244616', 'petani', 'Jl. Kenanga No. 21'),
+('produsen_eko', 'eko123', 'Eko Saputra', '082134567812', 'produsen', 'Jl. Ahmad Yani No. 33'),
+('admin_mawar', 'mawar123', 'Mawar Fitriani', '083145678912', 'admin', 'Jl. Diponegoro No. 7'),
+('petani_adi', 'adi123', 'Adi Triyono', '082245678123', 'petani', 'Jl. Letjen Suprapto No. 15'),
+('produsen_sinta', 'sinta123', 'Sinta Kumalasari', '085334567891', 'produsen', 'Jl. Cempaka No. 56'),
+('admin_agus', 'agus123', 'Agus Hartono', '089612345678', 'admin', 'Jl. Trunojoyo No. 18'),
+('petani_rani', 'rani123', 'Rani Ayu Dewi', '087834562311', 'petani', 'Jl. Patimura No. 24'),
+('produsen_lilis', 'lilis123', 'Lilis Pratiwi', '082134891234', 'produsen', 'Jl. S. Parman No. 80'),
+('admin_bagus', 'bagus123', 'Bagus Wibisono', '081355662211', 'admin', 'Jl. Sultan Agung No. 5'),
+('petani_nanda', 'nanda123', 'Nanda Rahmawati', '081244718236', 'petani', 'Jl. Melati No. 29'),
+('produsen_seno', 'seno123', 'Seno Dwi Kurniawan', '089611238737', 'produsen', 'Jl. Riau No. 91'),
+('admin_dwi', 'dwi123', 'Dwi Sulistyo', '083142312457', 'admin', 'Jl. Gatot Subroto No. 3');
 
-INSERT INTO role (nama_role) VALUES
-('Petani'),
-('Produsen'),
-('Admin');
-
-INSERT INTO users (username, password, nama, no_telp, id_keranjang, id_role) VALUES
-('petani_andi', 'andi123', 'Andi Santoso', '081234567890', 1, 1),
-('produsen_budi', 'budi123', 'Budi Prasetyo', '082345678901', 2, 2),
-('admin_sri', 'sri123', 'Sri Lestari', '083456789012', 3, 3),
-('petani_joko', 'joko123', 'Joko Susanto', '082376244616', 4, 1),
-('produsen_eko', 'eko123', 'Eko Saputra', '082134567812', 5, 2),
-('admin_mawar', 'mawar123', 'Mawar Fitriani', '083145678912', 6, 3),
-('petani_adi', 'adi123', 'Adi Triyono', '082245678123', 7, 1),
-('produsen_sinta', 'sinta123', 'Sinta Kumalasari', '085334567891', 8, 2),
-('admin_agus', 'agus123', 'Agus Hartono', '089612345678', 9, 3),
-('petani_rani', 'rani123', 'Rani Ayu Dewi', '087834562311', 10, 1),
-('produsen_lilis', 'lilis123', 'Lilis Pratiwi', '082134891234', 11, 2),
-('admin_bagus', 'bagus123', 'Bagus Wibisono', '081355662211', 12, 3),
-('petani_nanda', 'nanda123', 'Nanda Rahmawati', '081244718236', 13, 1),
-('produsen_seno', 'seno123', 'Seno Dwi Kurniawan', '089611238737', 14, 2),
-('admin_dwi', 'dwi123', 'Dwi Sulistyo', '083142312457', 15, 3);
-
-INSERT INTO kategori_benih(id_kategori_benih, nama_kategori) VALUES
-(1, 'Padi'),
-(2, 'Jagung'),
-(3, 'Cabai'),
-(4, 'Sayuran');
+INSERT INTO kategori_benih(nama_kategori) VALUES
+('Padi'),
+('Jagung'),
+('Cabai'),
+('Sayuran');
 
 INSERT INTO benih (nama_benih, tanggal_masuk, kadaluarsa, harga, id_kategori_benih, id_user) 
 VALUES
@@ -229,5 +220,4 @@ INSERT INTO desa (nama, id_kecamatan) VALUES
 -- 10. Ambulu
 ('Ambulu', 10),
 ('Pontang', 10),
-
 ('Sabrang', 10);
