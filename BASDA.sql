@@ -7,14 +7,6 @@ id_kategori_benih serial primary key,
 nama_kategori Varchar(64) not null
 );
 
-
-CREATE TABLE keranjang_pesanan(
-id_keranjang SERIAL PRIMARY KEY
-);
-
-INSERT INTO keranjang_pesanan (id_keranjang) 
-SELECT generate_series(1, 15);
-
 CREATE TABLE users(
 id_user SERIAL PRIMARY KEY,
 username VARCHAR(32) UNIQUE NOT NULL,
@@ -22,7 +14,6 @@ password VARCHAR(32) UNIQUE NOT NULL,
 nama VARCHAR(20) NOT NULL,
 no_telp VARCHAR(15) NOT NULL,
 
-id_keranjang INTEGER REFERENCES keranjang_pesanan(id_keranjang),
 id_role INTEGER REFERENCES role(id_role)
 );
 
@@ -54,14 +45,6 @@ id_pesanan SERIAL PRIMARY KEY,
 tanggal_pesanan DATE NOT NULL,
 
 id_user INTEGER REFERENCES users(id_user)
-);
-
-CREATE TABLE detail_keranjang(
-id_detail_keranjang SERIAL PRIMARY KEY,
-quantity INTEGER NOT NULL,
-
-id_benih INTEGER REFERENCES benih(id_benih),
-id_keranjang INTEGER REFERENCES keranjang_pesanan(id_keranjang)
 );
 
 
@@ -110,13 +93,6 @@ nama varchar(64),
 id_kecamatan integer references kecamatan(id_kecamatan)
 );
 
-CREATE TABLE alamat(
-id_alamat SERIAL PRIMARY KEY,
-
-id_user INTEGER REFERENCES users(id_user),
-id_pesanan INTEGER REFERENCES pesanan(id_pesanan),
-id_desa integer references desa(id_desa)
-);
 
 INSERT INTO role (nama_role) VALUES
 ('Petani'),
@@ -253,4 +229,5 @@ INSERT INTO desa (nama, id_kecamatan) VALUES
 -- 10. Ambulu
 ('Ambulu', 10),
 ('Pontang', 10),
+
 ('Sabrang', 10);
