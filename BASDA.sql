@@ -14,17 +14,11 @@ username VARCHAR(32) UNIQUE NOT NULL,
 password VARCHAR(32) UNIQUE NOT NULL,
 nama VARCHAR(20) NOT NULL,
 no_telp VARCHAR(15) NOT NULL,
-role enum_role NOT NULL
+role enum_role NOT NULL,
+detail_alamat TEXT not null,
+
+id_desa INTEGER REFERENCES desa(id_desa)
 );
-
-ALTER TABLE users
-ADD COLUMN id_desa INTEGER;
-
-ALTER TABLE users
-ADD CONSTRAINT fk_user_desa
-FOREIGN KEY (id_desa)
-REFERENCES desa(id_desa)
-ON DELETE SET NULL;
 
 CREATE TABLE benih(
 id_benih SERIAL PRIMARY KEY,
@@ -33,9 +27,6 @@ harga INTEGER NOT NULL,
 
 id_kategori_benih INTEGER REFERENCES kategori_benih(id_kategori_benih)
 );
-
-ALTER TABLE users
-ADD COLUMN detail_alamat VARCHAR(64);
 
 CREATE TABLE pesanan(
 id_pesanan SERIAL PRIMARY KEY,
@@ -106,7 +97,6 @@ INSERT INTO users (username, password, nama, no_telp, role, detail_alamat, id_de
 ('petani_nanda', 'nanda123', 'Nanda Rahmawati', '081244718236', 'petani', 'Jl. Melati No. 29', 14),
 ('produsen_seno', 'seno123', 'Seno Dwi Kurniawan', '089611238737', 'produsen', 'Jl. Riau No. 91', 4),
 ('admin_dwi', 'dwi123', 'Dwi Sulistyo', '083142312457', 'admin', 'Jl. Gatot Subroto No. 3', 11);
-
 
 INSERT INTO kategori_benih(nama_kategori) VALUES
 ('Padi'),
@@ -222,6 +212,7 @@ INSERT INTO desa (nama, id_kecamatan) VALUES
 ('Ambulu', 10),
 ('Pontang', 10),
 ('Sabrang', 10);
+
 
 
 
