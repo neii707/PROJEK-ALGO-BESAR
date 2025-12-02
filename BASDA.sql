@@ -88,22 +88,23 @@ nama varchar(64) NOT NULL,
 id_kecamatan integer references kecamatan(id_kecamatan)
 );
 
-INSERT INTO users(username, password, nama, no_telp, role, detail_alamat) VALUES
-('petani_andi', 'andi123', 'Andi Santoso', '081234567890', 'petani', 'Jl. Mawar No. 12'),
-('produsen_budi', 'budi123', 'Budi Prasetyo', '082345678901', 'produsen', 'Jl. Semeru No. 44'),
-('admin_sri', 'sri123', 'Sri Lestari', '083456789012', 'admin', 'Jl. Kartini No. 9'),
-('petani_joko', 'joko123', 'Joko Susanto', '082376244616', 'petani', 'Jl. Kenanga No. 21'),
-('produsen_eko', 'eko123', 'Eko Saputra', '082134567812', 'produsen', 'Jl. Ahmad Yani No. 33'),
-('admin_mawar', 'mawar123', 'Mawar Fitriani', '083145678912', 'admin', 'Jl. Diponegoro No. 7'),
-('petani_adi', 'adi123', 'Adi Triyono', '082245678123', 'petani', 'Jl. Letjen Suprapto No. 15'),
-('produsen_sinta', 'sinta123', 'Sinta Kumalasari', '085334567891', 'produsen', 'Jl. Cempaka No. 56'),
-('admin_agus', 'agus123', 'Agus Hartono', '089612345678', 'admin', 'Jl. Trunojoyo No. 18'),
-('petani_rani', 'rani123', 'Rani Ayu Dewi', '087834562311', 'petani', 'Jl. Patimura No. 24'),
-('produsen_lilis', 'lilis123', 'Lilis Pratiwi', '082134891234', 'produsen', 'Jl. S. Parman No. 80'),
-('admin_bagus', 'bagus123', 'Bagus Wibisono', '081355662211', 'admin', 'Jl. Sultan Agung No. 5'),
-('petani_nanda', 'nanda123', 'Nanda Rahmawati', '081244718236', 'petani', 'Jl. Melati No. 29'),
-('produsen_seno', 'seno123', 'Seno Dwi Kurniawan', '089611238737', 'produsen', 'Jl. Riau No. 91'),
-('admin_dwi', 'dwi123', 'Dwi Sulistyo', '083142312457', 'admin', 'Jl. Gatot Subroto No. 3');
+INSERT INTO users (username, password, nama, no_telp, role, detail_alamat, id_desa) VALUES
+('petani_andi', 'andi123', 'Andi Santoso', '081234567890', 'petani', 'Jl. Mawar No. 12', 1),
+('produsen_budi', 'budi123', 'Budi Prasetyo', '082345678901', 'produsen', 'Jl. Semeru No. 44', 2),
+('admin_sri', 'sri123', 'Sri Lestari', '083456789012', 'admin', 'Jl. Kartini No. 9', 3),
+('petani_joko', 'joko123', 'Joko Susanto', '082376244616', 'petani', 'Jl. Kenanga No. 21', 9),
+('produsen_eko', 'eko123', 'Eko Saputra', '082134567812', 'produsen', 'Jl. Ahmad Yani No. 33', 7),
+('admin_mawar', 'mawar123', 'Mawar Fitriani', '083145678912', 'admin', 'Jl. Diponegoro No. 7', 10),
+('petani_adi', 'adi123', 'Adi Triyono', '082245678123', 'petani', 'Jl. Letjen Suprapto No. 15', 12),
+('produsen_sinta', 'sinta123', 'Sinta Kumalasari', '085334567891', 'produsen', 'Jl. Cempaka No. 56', 5),
+('admin_agus', 'agus123', 'Agus Hartono', '089612345678', 'admin', 'Jl. Trunojoyo No. 18', 6),
+('petani_rani', 'rani123', 'Rani Ayu Dewi', '087834562311', 'petani', 'Jl. Patimura No. 24', 15),
+('produsen_lilis', 'lilis123', 'Lilis Pratiwi', '082134891234', 'produsen', 'Jl. S. Parman No. 80', 20),
+('admin_bagus', 'bagus123', 'Bagus Wibisono', '081355662211', 'admin', 'Jl. Sultan Agung No. 5', 21),
+('petani_nanda', 'nanda123', 'Nanda Rahmawati', '081244718236', 'petani', 'Jl. Melati No. 29', 14),
+('produsen_seno', 'seno123', 'Seno Dwi Kurniawan', '089611238737', 'produsen', 'Jl. Riau No. 91', 4),
+('admin_dwi', 'dwi123', 'Dwi Sulistyo', '083142312457', 'admin', 'Jl. Gatot Subroto No. 3', 11);
+
 
 INSERT INTO kategori_benih(nama_kategori) VALUES
 ('Padi'),
@@ -219,4 +220,5 @@ INSERT INTO desa (nama, id_kecamatan) VALUES
 ('Ambulu', 10),
 ('Pontang', 10),
 ('Sabrang', 10);
+
 
