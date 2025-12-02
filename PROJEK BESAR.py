@@ -1087,7 +1087,7 @@ def login():
     pw = input("Password: ")
 
     query = """
-        SELECT id_user, id_role FROM users
+        SELECT id_user, role FROM users
         WHERE username = %s AND password = %s
     """
     cursor.execute(query, (usn, pw))
@@ -1099,21 +1099,24 @@ def login():
         print()
         print()
         print("=== USERNAME ATAU PASSWORD SALAH, COBA LAGI ===")
-        login()
+        return login()
     
-    id_user, id_role = result
+    id_user, role = result
     clear_terminal()
     gambar()    
 
-    if id_role == 1:
+    if role == "petani":
         print("=== LOGIN BERHASIL SEBAGAI CUSTOMER ===")
-        menu_customer(id_user) 
-    elif id_role == 2:
+        menu_customer(id_user, role)
+
+    elif role == "produsen":
         print("=== LOGIN BERHASIL SEBAGAI PRODUSEN ===")
-        menu_produsen(id_user)
-    elif id_role == 3:
+        menu_produsen(id_user, role)
+
+    elif role == "admin":
         print("=== LOGIN BERHASIL SEBAGAI ADMIN ===")
-        menu_admin(id_user)
+        menu_admin(id_user, role)
+
     else:
         print("Role tidak dikenali.")
         print()
@@ -1121,38 +1124,38 @@ def login():
 # BIKIN AKUN BARU
 def register():
     try: 
-      print("1. Customer")
-      print("2. Produsen")
-      pilih = input("Pilih Akun Role yang ingin anda buat 1/2: ")
-      if pilih == "1": 
-        data_customer(1)
-        role = 1
-      elif pilih == "2":
-        data_produsen(2)
-        role = 2
-      else :
-        clear_terminal()
-        gambar()
-        print()
-        print()
-        print("=== INPUT TIDAK VALID COBA LAGI ===")
-        print()
+        print("1. Customer")
+        print("2. Produsen")
+        pilih = input("Pilih Akun Role yang ingin anda buat 1/2: ")
+
+        if pilih == "1": 
+            data_customer("petani")
+            role = "petani"
+        elif pilih == "2":
+            data_produsen("produsen")
+            role = "produsen"
+        else:
+            clear_terminal()
+            gambar()
+            print("\n=== INPUT TIDAK VALID, COBA LAGI ===\n")
+            register()
+            return
+        close_db()
+
+    except Exception as e:
+        print(f"Terjadi Error: {e}")
         register()
-      close_db()
-    except Exception as e :
-      print(f"Terjadi Error: {e}")
-      return
+
 def data_customer(role):
     # ====== AMBIL DATA USER ======
     connection, cursor = connect_db()
     try:
         print()
-
         # NAMA
         nama = input("Masukkan Nama: ").strip()
         if not nama:
-            print("Nama tidak boleh kosong!")
             clear_terminal()
+            print("Nama tidak boleh kosong!")
             return data_customer(role)
 
         # USERNAME
@@ -1160,22 +1163,19 @@ def data_customer(role):
         if len(usn) < 8:
             clear_terminal()
             print("Username minimal 8 karakter!")
-            print()
-            register()
+            return data_customer(role)
         cursor.execute("SELECT 1 FROM users WHERE username = %s", (usn,))
         if cursor.fetchone():
             clear_terminal()
             print("Username sudah digunakan!")
-            print()
-            register()
-
+            data_customer(role)
         # PASSWORD
         pw = input("Masukkan Password: ").strip()
         if len(pw) < 8:
             clear_terminal()
             print("Password minimal 8 karakter!")
             print()
-            register()
+            data_customer(role)
 
         # NO TELP
         no_telp = input("Masukkan No. Telepon: ").strip()
@@ -1183,13 +1183,13 @@ def data_customer(role):
             clear_terminal()
             print("No. Telepon harus angka dan minimal 10 digit!")
             print()
-            register()
+            data_customer(role)
         cursor.execute("SELECT 1 FROM users WHERE no_telp = %s", (no_telp,))
         if cursor.fetchone():
             clear_terminal()
             print("No. Telepon sudah digunakan!")
             print()
-            register()
+            data_customer(role)
 
         # WILAYAH
         cursor.execute("SELECT id_kabupaten, nama FROM kabupaten")
@@ -1211,21 +1211,17 @@ def data_customer(role):
         id_desa = int(input("ID Desa: "))
 
         print("\nAlamat tersimpan.\n")
-
-    # finally:
-        # cursor.close()
-        # connection.close()
-         # 1. BUAT KERANJANG BARU
+         # BUAT KERANJANG BARU
         sql_create_keranjang = """
             INSERT INTO keranjang_pesanan 
             DEFAULT VALUES
             RETURNING id_keranjang
             """
         cursor.execute(sql_create_keranjang)
-        id_keranjang = cursor.fetchone()[0] # <-- ID Keranjang baru sudah didapatkan
+        id_keranjang = cursor.fetchone()[0] # ID Keranjang baru sudah didapatkan
 
         cursor.execute("""
-            INSERT INTO users (nama, username, password, no_telp, id_role)
+            INSERT INTO users (nama, username, password, no_telp, role)
             VALUES (%s, %s, %s, %s, %s)
             RETURNING id_user;
         """, (nama, usn, pw, no_telp, role))
@@ -1239,7 +1235,7 @@ def data_customer(role):
             """
         cursor.execute(sql_update_user, (id_keranjang, id_user))
 
-        # 3. INSERT ALAMAT
+        # INSERT ALAMAT
         cursor.execute("""
             INSERT INTO alamat (id_user, id_desa)
             VALUES (%s, %s)
@@ -1253,7 +1249,7 @@ def data_customer(role):
     except Exception as e:
         print("Terjadi error:", e)
         connection.rollback()
-        return register()
+        register()
 
 def data_produsen(role):
     connection, cursor = connect_db() 
@@ -1328,5 +1324,6 @@ print("=== WELCOME TO OUR PLATFORM ===")
 print()
 print()
 dashboard()
+
 
 
