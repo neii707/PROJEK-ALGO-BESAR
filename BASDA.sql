@@ -1,7 +1,7 @@
 CREATE TYPE enum_transaksi AS ENUM('dikemas', 'dikirim', 'diterima', 'selesai');
 CREATE TYPE enum_pembayaran AS ENUM ('tunai', 'non tunai');
 CREATE TYPE enum_role AS ENUM ('petani', 'produsen', 'admin');
-CREATE TYPE enum_pesanan AS ENUM ('di keranjang', 'dipesan');
+CREATE TYPE enum_pesanan AS ENUM ('di keranjang', 'di beli');
 
 CREATE table kategori_benih(
 id_kategori_benih serial primary key,
@@ -212,6 +212,7 @@ INSERT INTO desa (nama, id_kecamatan) VALUES
 ('Ambulu', 10),
 ('Pontang', 10),
 ('Sabrang', 10);
+
 
 
 
