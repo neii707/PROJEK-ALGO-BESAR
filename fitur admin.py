@@ -8,7 +8,7 @@ def connect_db():
                                       password="langgeng847",
                                       host="127.0.0.1",
                                       port="5432",
-                                      database="Project")
+                                      database="Seedbridge")
         cursor = connection.cursor()
         return connection, cursor
     except (Exception, Error) as error:
@@ -31,137 +31,137 @@ def commit_db(connection, cursor):
 def clear_terminal():
     os.system('cls')
 # FITUR CUSTOMER
-# def Katalog_Benih(id_user):
-#     connection, cursor = connect_db()
-#     clear_terminal()
-#     print('1. Tampilkan semua Katalog Menu')
-#     print()
-#     print("  Filter Berdasarkan Kategori ")
-#     print("2. Harga Terendah")
-#     print("3. Harga Tertinggi")
-#     print("4. Stok Tersedia")
-#     print("5. Kembali ke Menu Customer")
-#     print()
-#     pilih = input('Pilih Menu anda 1/2/3/4/5: ')
+def Katalog_Benih(id_user):
+    connection, cursor = connect_db()
+    clear_terminal()
+    print('1. Tampilkan semua Katalog Menu')
+    print()
+    print("  Filter Berdasarkan Kategori ")
+    print("2. Harga Terendah")
+    print("3. Harga Tertinggi")
+    print("4. Stok Tersedia")
+    print("5. Kembali ke Menu Customer")
+    print()
+    pilih = input('Pilih Menu anda 1/2/3/4/5: ')
     
-#     QUERY_BASE = """
-#         SELECT b.id_benih, b.nama_benih, k.nama_kategori, b.harga, r.tanggal_kadaluarsa, SUM(r.jumlah_produksi) as stok    
-#         FROM benih b
-#         JOIN kategori_benih k ON b.id_kategori_benih = k.id_kategori_benih
-#         LEFT JOIN riwayat_produksi r ON b.id_benih = r.id_benih
-#         GROUP BY b.id_benih, b.nama_benih, k.nama_kategori, b.harga, r.tanggal_kadaluarsa 
-#         HAVING SUM(r.jumlah_produksi) > 0 
-#     """
-#     try: 
-#         if pilih == '1':
-#             query = QUERY_BASE + "ORDER BY k.nama_kategori ASC, b.nama_benih ASC"
-#         elif pilih == "2":
-#             query = QUERY_BASE + " ORDER BY b.harga ASC"    
-#         elif pilih == "3":
-#             query = QUERY_BASE + " ORDER BY b.harga DESC"
-#         elif pilih == "4":
-#             query =  """
-#             SELECT b.id_benih, b.nama_benih, k.nama_kategori, b.harga, r.tanggal_kadaluarsa, SUM(r.jumlah_produksi) as stok    
-#             FROM benih b
-#             JOIN kategori_benih k ON b.id_kategori_benih = k.id_kategori_benih
-#             LEFT JOIN riwayat_produksi r ON b.id_benih = r.id_benih
-#             GROUP BY b.id_benih, b.nama_benih, k.nama_kategori, b.harga, r.tanggal_kadaluarsa 
-#             HAVING SUM(r.jumlah_produksi) > 0 
-#             ORDER BY k.nama_kategori ASC, b.nama_benih ASC
-#         """
-#         elif pilih == "5":
-#             clear_terminal()
-#             return menu_customer(id_user)
-#         else:
-#             print("Pilihan tidak valid.")
-#             return Katalog_Benih(id_user)
-#         cursor.execute(query)
-#         data = cursor.fetchall()
+    QUERY_BASE = """
+        SELECT b.id_benih, b.nama_benih, k.nama_kategori, b.harga, r.tanggal_kadaluarsa, SUM(r.jumlah_produksi) as stok    
+        FROM benih b
+        JOIN kategori_benih k ON b.id_kategori_benih = k.id_kategori_benih
+        LEFT JOIN riwayat_produksi r ON b.id_benih = r.id_benih
+        GROUP BY b.id_benih, b.nama_benih, k.nama_kategori, b.harga, r.tanggal_kadaluarsa 
+        HAVING SUM(r.jumlah_produksi) > 0 
+    """
+    try: 
+        if pilih == '1':
+            query = QUERY_BASE + "ORDER BY k.nama_kategori ASC, b.nama_benih ASC"
+        elif pilih == "2":
+            query = QUERY_BASE + " ORDER BY b.harga ASC"    
+        elif pilih == "3":
+            query = QUERY_BASE + " ORDER BY b.harga DESC"
+        elif pilih == "4":
+            query =  """
+            SELECT b.id_benih, b.nama_benih, k.nama_kategori, b.harga, r.tanggal_kadaluarsa, SUM(r.jumlah_produksi) as stok    
+            FROM benih b
+            JOIN kategori_benih k ON b.id_kategori_benih = k.id_kategori_benih
+            LEFT JOIN riwayat_produksi r ON b.id_benih = r.id_benih
+            GROUP BY b.id_benih, b.nama_benih, k.nama_kategori, b.harga, r.tanggal_kadaluarsa 
+            HAVING SUM(r.jumlah_produksi) > 0 
+            ORDER BY k.nama_kategori ASC, b.nama_benih ASC
+        """
+        elif pilih == "5":
+            clear_terminal()
+            return menu_customer(id_user)
+        else:
+            print("Pilihan tidak valid.")
+            return Katalog_Benih(id_user)
+        cursor.execute(query)
+        data = cursor.fetchall()
         
-#         clear_terminal()
-#         print("\n" + "="*75)
-#         print("                          🌱 KATALOG BENIH 🌱")
-#         print("="*75)
-#         print("="*75)
-#         print("      Gunakan ID Benih untuk menambahkan ke keranjang belanja Anda.")
-#         print("="*75)
-#         if not data:
-#             if pilih in ['1', '2', '3', '4']:
-#                 print("Belum ada benih yang tersedia.")
+        clear_terminal()
+        print("\n" + "="*75)
+        print("                          🌱 KATALOG BENIH 🌱")
+        print("="*75)
+        print("="*75)
+        print("      Gunakan ID Benih untuk menambahkan ke keranjang belanja Anda.")
+        print("="*75)
+        if not data:
+            if pilih in ['1', '2', '3', '4']:
+                print("Belum ada benih yang tersedia.")
             
-#             print("="*75 + "\n")
-#             return menu_customer(id_user)
+            print("="*75 + "\n")
+            return menu_customer(id_user)
         
-#         kategori= {}
-#         for row in data:
-#             id_benih, nama_benih, nama_kategori, harga, kadaluarsa, stok = row
-#             if nama_kategori not in kategori:
-#                 kategori [nama_kategori] = []
-#             kategori[nama_kategori].append(row)
-#         for kategori, items in kategori.items():
-#                 print(f"\n📂 Kategori: {kategori}")
-#                 print("-"*75)
-#                 print(f"{'ID Benih':^10} {'Nama Benih':^25} {'Harga':^10} {'Tanggal Kadaluarsa':^20} {'Stok':^7}")
-#                 print("-"*75)
-#                 for id_benih, nama_benih, kategori, harga, kadaluarsa, stok in items:
-#                     tanggal_str = kadaluarsa.strftime("%Y-%m-%d") if kadaluarsa else "N/A"
-#                     print(f"{id_benih:^10} {nama_benih:^25} {harga:^10} {tanggal_str:^20} {stok:^7}")
+        kategori= {}
+        for row in data:
+            id_benih, nama_benih, nama_kategori, harga, kadaluarsa, stok = row
+            if nama_kategori not in kategori:
+                kategori [nama_kategori] = []
+            kategori[nama_kategori].append(row)
+        for kategori, items in kategori.items():
+                print(f"\n📂 Kategori: {kategori}")
+                print("-"*75)
+                print(f"{'ID Benih':^10} {'Nama Benih':^25} {'Harga':^10} {'Tanggal Kadaluarsa':^20} {'Stok':^7}")
+                print("-"*75)
+                for id_benih, nama_benih, kategori, harga, kadaluarsa, stok in items:
+                    tanggal_str = kadaluarsa.strftime("%Y-%m-%d") if kadaluarsa else "N/A"
+                    print(f"{id_benih:^10} {nama_benih:^25} {harga:^10} {tanggal_str:^20} {stok:^7}")
 
-#         stok_display = stok if stok is not None else 0
-#         id_benih_display = id_benih if id_benih is not None else ""
-#         nama_benih_display = nama_benih if nama_benih is not None else ""
-#         harga_display = harga if harga is not None else ""
-#         print(f"{id_benih_display:^10} {nama_benih_display:^25} {harga_display:^10} {tanggal_str:^20} {stok_display:^7}")
-#         stok = stok_display
+        stok_display = stok if stok is not None else 0
+        id_benih_display = id_benih if id_benih is not None else ""
+        nama_benih_display = nama_benih if nama_benih is not None else ""
+        harga_display = harga if harga is not None else ""
+        print(f"{id_benih_display:^10} {nama_benih_display:^25} {harga_display:^10} {tanggal_str:^20} {stok_display:^7}")
+        stok = stok_display
             
-#         print()
-#         kelas = input('pilih 1 untuk kembali dan 2 untuk pilih benih: ')
-#         if kelas == '1':
-#           clear_terminal()
-#           Katalog_Benih(id_user)
-#         elif kelas == '2':
-#           connection, cursor = connect_db()
-#           aku = input('masukkan id benih yg mau dibeli: ')
-#           kmu = input('masukkan jumlah benih yg dibeli: ')
+        print()
+        kelas = input('pilih 1 untuk kembali dan 2 untuk pilih benih: ')
+        if kelas == '1':
+          clear_terminal()
+          Katalog_Benih(id_user)
+        elif kelas == '2':
+          connection, cursor = connect_db()
+          aku = input('masukkan id benih yg mau dibeli: ')
+          kmu = input('masukkan jumlah benih yg dibeli: ')
 
-#           sql_get_keranjang = "SELECT id_keranjang FROM users WHERE id_user = %s"
-#           cursor.execute(sql_get_keranjang, (id_user,))
-#           result = cursor.fetchone()
+          sql_get_keranjang = "SELECT id_keranjang FROM users WHERE id_user = %s"
+          cursor.execute(sql_get_keranjang, (id_user,))
+          result = cursor.fetchone()
 
-#           if result:
-#             id_keranjang = result[0]
+          if result:
+            id_keranjang = result[0]
 
-#           sql_detail = """
-#                         INSERT INTO detail_keranjang (id_keranjang, id_benih, quantity)
-#                         VALUES (%s, %s, %s)
-#                         """
-#           cursor.execute("SELECT id_keranjang FROM users WHERE id_user = %s", (id_user,))
-#           keranjang = cursor.fetchone()                     
-#           data_detail = (id_keranjang, aku, kmu) 
-#           cursor.execute(sql_detail, data_detail)
-#           connection.commit()  
-#           print()
-#           print()
-#           print()
+          sql_detail = """
+                        INSERT INTO detail_keranjang (id_keranjang, id_benih, quantity)
+                        VALUES (%s, %s, %s)
+                        """
+          cursor.execute("SELECT id_keranjang FROM users WHERE id_user = %s", (id_user,))
+          keranjang = cursor.fetchone()                     
+          data_detail = (id_keranjang, aku, kmu) 
+          cursor.execute(sql_detail, data_detail)
+          connection.commit()  
+          print()
+          print()
+          print()
           
-#           pergi = input('Benih sudah dimasukkan ke keranjang silahkan tekan enter untuk pergi ke menu keranjang')
-#           if pergi == '':
-#             clear_terminal()
-#             Keranjang_Belanja(id_user)
-#           else :
-#             clear_terminal()
-#             print('PILIHAN TIDAK VALID KEMBALI KE MENU CUSTOMER')
-#             menu_customer(id_user)
+          pergi = input('Benih sudah dimasukkan ke keranjang silahkan tekan enter untuk pergi ke menu keranjang')
+          if pergi == '':
+            clear_terminal()
+            Keranjang_Belanja(id_user)
+          else :
+            clear_terminal()
+            print('PILIHAN TIDAK VALID KEMBALI KE MENU CUSTOMER')
+            menu_customer(id_user)
           
-#     except Exception as e :
-#         print(f"Terjadi Error: {e}")
-#         print()
-#         print('=== DATA TIDAK VALID KEMBALI KE MENU ===')
-#         print()
-#         menu_customer(id_user)
-#         print()
-#     finally:
-#         commit_db(connection, cursor)
+    except Exception as e :
+        print(f"Terjadi Error: {e}")
+        print()
+        print('=== DATA TIDAK VALID KEMBALI KE MENU ===')
+        print()
+        menu_customer(id_user)
+        print()
+    finally:
+        commit_db(connection, cursor)
 def Katalog_Benih(id_user):
     connection, cursor = connect_db()
     clear_terminal()
@@ -280,11 +280,13 @@ def Katalog_Benih(id_user):
               id_benih_beli = int(aku)
               qty_dibeli = int(kmu) # Konversi jumlah yang dibeli ke integer
           except ValueError:
-              print(" Input ID Benih dan Jumlah harus berupa angka yang valid!")
-              print()
-              menu_customer(id_user)
+                clear_terminal()
+                print(" Input ID Benih dan Jumlah harus berupa angka yang valid!")
+                print()
+                menu_customer(id_user)
 
           if qty_dibeli <= 0:
+                clear_terminal()
                 print(" Jumlah benih harus lebih dari nol!")
                 balik = input('tekan enter untuk kembali ke katalog: ')
                 if balik == '':
@@ -300,13 +302,12 @@ def Katalog_Benih(id_user):
           stok_saat_ini = cursor.fetchone()[0]
           
           if stok_saat_ini <= 0:
-                print(f"❌ Benih dengan ID {id_benih_beli} saat ini KOSONG (Stok: 0). Tidak bisa dibeli.")
+                print(f" Benih dengan ID {id_benih_beli} saat ini KOSONG (Stok: 0). Tidak bisa dibeli.")
                 balik = input('tekan enter untuk kembali kek katalog: ')
                 if balik == '':
                   clear_terminal()
                   Katalog_Benih(id_user)
               
-
           if stok_saat_ini < qty_dibeli: 
                 print(f" Stok tidak mencukupi!")
                 print(f"   Stok tersedia: {stok_saat_ini}, Anda mencoba membeli: {qty_dibeli}")
@@ -319,19 +320,8 @@ def Katalog_Benih(id_user):
           cursor.execute(sql_get_keranjang, (id_user,))
           result = cursor.fetchone()
             
-
           if result:
             id_keranjang = result[0]
-        #   else:
-        #     # keranjang baru 
-        #     sql_create_keranjang = """
-        #     INSERT INTO users (id_user, status, created_at) 
-        #     VALUES (%s, 'active', NOW()) 
-        #     RETURNING id_keranjang
-        #     """
-        #     cursor.execute(sql_create_keranjang, (id_user,))
-        #     id_keranjang = cursor.fetchone()[0]
-        #     print(f"Keranjang baru dibuat: {id_keranjang}")
 
           sql_detail = """
                         INSERT INTO detail_keranjang (id_keranjang, id_benih, quantity)
@@ -433,22 +423,38 @@ def Keranjang_Belanja(id_user):
                 pilihan = input(">>:  ").strip()
                 if not pilihan:
                   print("Tidak ada item yang dipilih!")
-                  return pilihan
+                  menu_customer(id_user)
             
                 id_detail = [int(x.strip()) for x in pilihan.split()]
                 dipilih = [item for item in keranjang if int(str(item['id_detail']).strip()) in id_detail]
                 
-                if not dipilih:
-                    print("Tidak ada item yang valid dipilih!")
-                    clear_terminal()
-                    menu_customer(id_user)
-                
+                if dipilih ==  "":
+                    # print("Tidak ada item yang valid dipilih!")
+                    balik = input('tekan enter untuk kembali ke menu customer..')
+                    if balik == '':
+                        menu_customer(id_user)
+                    else :
+                        menu_customer(id_user)
+        
+
                 print(f"\n✅ {len(dipilih)} item dipilih untuk checkout!")
                 print("\n" + "="*100)
                 print(" " * 40 + "🛒 CHECKOUT")
                 print("="*100)
                 print(f"{'ID':<8} {'NAMA BENIH':<25} {'HARGA':<12} {'QTY':>4} {'SUB TOTAL':>15}")
                 print("-" * 100)
+
+                # if not dipilih:
+                #     print("Tidak ada item yang valid dipilih!")
+                #     clear_terminal()
+                #     menu_customer(id_user)
+                
+                # print(f"\n✅ {len(dipilih)} item dipilih untuk checkout!")
+                # print("\n" + "="*100)
+                # print(" " * 40 + "🛒 CHECKOUT")
+                # print("="*100)
+                # print(f"{'ID':<8} {'NAMA BENIH':<25} {'HARGA':<12} {'QTY':>4} {'SUB TOTAL':>15}")
+                # print("-" * 100)
                     
                 total_bayar = 0
                 for item in dipilih:
@@ -468,7 +474,7 @@ def Keranjang_Belanja(id_user):
                     print("INFORMASI PENGIRIMAN & PEMBAYARAN")
                     print("="*50)
                     
-                    metode_pembayaran = input("Metode Pembayaran tunai/non tunai): ").strip().lower()
+                    metode_pembayaran = input("Metode Pembayaran (tunai/non tunai): ").strip().lower()
                     
                     if not metode_pembayaran :
                         print(" Metode pembayaran wajib diisi!")
@@ -555,6 +561,13 @@ def Keranjang_Belanja(id_user):
                         print('PILIHAN TIDAK VALID KEMBALI KE KERANJANG')
                         print()
                         Keranjang_Belanja(id_user)
+                if dipilih ==  "":
+                    print("Tidak ada item yang valid dipilih!")
+                    clear_terminal()
+                    menu_customer(id_user)
+                    return
+
+                
             except ValueError:
                   print(" Input tidak valid! Harus angka.")
                   clear_terminal()
@@ -1049,7 +1062,7 @@ def daftar_pesanan(id_user):
     except Exception as e :
         print(f"Terjadi Error: {e}")
 # MENU TIAP ROLE
-def menu_admin(id_user):
+def menu_admin(id_user, role):
     print()
     print("=== WELCOME ADMIN ===")
     print()
@@ -1074,12 +1087,12 @@ def menu_admin(id_user):
             print()
             clear_terminal()
             print("Pilihan tidak valid. Silakan coba lagi.")
-            menu_admin(id_user)
+            menu_admin(id_user, role)
     except Exception as e :
      print(f"Terjadi Error: {e}")
      clear_terminal()
-     menu_admin(id_user)
-def menu_customer(id_user):
+     menu_admin(id_user, role)
+def menu_customer(id_user, role):
     print()
     print("=== WELCOME CUSTOMERR ===")
     print()
@@ -1111,10 +1124,10 @@ def menu_customer(id_user):
             print()
             print('=== PILIHAN TIDAK VALID ===')
             print()
-            menu_customer(id_user)
+            menu_customer(id_user, role)
     except Exception as e :
         print(f"Terjadi Error: {e}")
-def menu_produsen(id_user):
+def menu_produsen(id_user, role):
     print()
     print("\n=== WELCOMEE PRODUSEN === ")
     print()
@@ -1143,7 +1156,7 @@ def menu_produsen(id_user):
       print()
       print("Pilihan tidak valid. Silakan coba lagi.")
       print()
-      menu_produsen()
+      menu_produsen(id_user, role)
 def gambar():
   print(""" 
   █████████                        █████ ███████████             ███      █████                  
@@ -1191,7 +1204,7 @@ def login():
     pw = input("Password: ")
 
     query = """
-        SELECT id_user, id_role FROM users
+        SELECT id_user, role FROM users
         WHERE username = %s AND password = %s
     """
     cursor.execute(query, (usn, pw))
@@ -1203,21 +1216,24 @@ def login():
         print()
         print()
         print("=== USERNAME ATAU PASSWORD SALAH, COBA LAGI ===")
-        login()
+        return login()
     
-    id_user, id_role = result
+    id_user, role = result
     clear_terminal()
     gambar()    
 
-    if id_role == 1:
+    if role == "petani":
         print("=== LOGIN BERHASIL SEBAGAI CUSTOMER ===")
-        menu_customer(id_user) 
-    elif id_role == 2:
+        menu_customer(id_user, role)
+
+    elif role == "produsen":
         print("=== LOGIN BERHASIL SEBAGAI PRODUSEN ===")
-        menu_produsen(id_user)
-    elif id_role == 3:
+        menu_produsen(id_user, role)
+
+    elif role == "admin":
         print("=== LOGIN BERHASIL SEBAGAI ADMIN ===")
-        menu_admin(id_user)
+        menu_admin(id_user, role)
+
     else:
         print("Role tidak dikenali.")
         print()
@@ -1225,27 +1241,28 @@ def login():
 # BIKIN AKUN BARU
 def register():
     try: 
-      print("1. Customer")
-      print("2. Produsen")
-      pilih = input("Pilih Akun Role yang ingin anda buat 1/2: ")
-      if pilih == "1": 
-        data_customer(1)
-        role = 1
-      elif pilih == "2":
-        data_produsen(2)
-        role = 2
-      else :
-        clear_terminal()
-        gambar()
-        print()
-        print()
-        print("=== INPUT TIDAK VALID COBA LAGI ===")
-        print()
+        print("1. Customer")
+        print("2. Produsen")
+        pilih = input("Pilih Akun Role yang ingin anda buat 1/2: ")
+
+        if pilih == "1": 
+            data_customer("petani")
+            role = "petani"
+        elif pilih == "2":
+            data_produsen("produsen")
+            role = "produsen"
+        else:
+            clear_terminal()
+            gambar()
+            print("\n=== INPUT TIDAK VALID, COBA LAGI ===\n")
+            register()
+            return
+        close_db()
+
+    except Exception as e:
+        print(f"Terjadi Error: {e}")
         register()
-      close_db()
-    except Exception as e :
-      print(f"Terjadi Error: {e}")
-      register()
+
 def data_customer(role):
     # ====== AMBIL DATA USER ======
     connection, cursor = connect_db()
@@ -1254,8 +1271,8 @@ def data_customer(role):
         # NAMA
         nama = input("Masukkan Nama: ").strip()
         if not nama:
-            print("Nama tidak boleh kosong!")
             clear_terminal()
+            print("Nama tidak boleh kosong!")
             return data_customer(role)
 
         # USERNAME
@@ -1263,22 +1280,19 @@ def data_customer(role):
         if len(usn) < 8:
             clear_terminal()
             print("Username minimal 8 karakter!")
-            print()
-            register()
+            return data_customer(role)
         cursor.execute("SELECT 1 FROM users WHERE username = %s", (usn,))
         if cursor.fetchone():
             clear_terminal()
             print("Username sudah digunakan!")
-            print()
-            register()
-
+            data_customer(role)
         # PASSWORD
         pw = input("Masukkan Password: ").strip()
         if len(pw) < 8:
             clear_terminal()
             print("Password minimal 8 karakter!")
             print()
-            register()
+            data_customer(role)
 
         # NO TELP
         no_telp = input("Masukkan No. Telepon: ").strip()
@@ -1286,13 +1300,13 @@ def data_customer(role):
             clear_terminal()
             print("No. Telepon harus angka dan minimal 10 digit!")
             print()
-            register()
+            data_customer(role)
         cursor.execute("SELECT 1 FROM users WHERE no_telp = %s", (no_telp,))
         if cursor.fetchone():
             clear_terminal()
             print("No. Telepon sudah digunakan!")
             print()
-            register()
+            data_customer(role)
 
         # WILAYAH
         cursor.execute("SELECT id_kabupaten, nama FROM kabupaten")
