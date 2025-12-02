@@ -1243,13 +1243,13 @@ def register():
     try: 
         print("1. Customer")
         print("2. Produsen")
-        pilih = input("Pilih Akun Role yang ingin anda buat 1/2: ")
+        pilih = input("Pilih jenis akun yang ingin anda buat 1/2: ").strip()
 
         if pilih == "1": 
-            data_customer("petani")
+            data_user("petani")
             role = "petani"
         elif pilih == "2":
-            data_produsen("produsen")
+            data_user("produsen")
             role = "produsen"
         else:
             clear_terminal()
@@ -1263,179 +1263,125 @@ def register():
         print(f"Terjadi Error: {e}")
         register()
 
-def data_customer(role):
-    # ====== AMBIL DATA USER ======
+def data_user(role):
     connection, cursor = connect_db()
     try:
-        print()
-        # NAMA
-        nama = input("Masukkan Nama: ").strip()
-        if not nama:
+        # ====== NAMA ======
+        while True:
+            nama = input("Masukkan Nama: ").strip()
+            if nama:
+                break
             clear_terminal()
             print("Nama tidak boleh kosong!")
-            return data_customer(role)
 
-        # USERNAME
-        usn = input("Masukkan Username: ").strip()
-        if len(usn) < 8:
-            clear_terminal()
-            print("Username minimal 8 karakter!")
-            return data_customer(role)
-        cursor.execute("SELECT 1 FROM users WHERE username = %s", (usn,))
-        if cursor.fetchone():
-            clear_terminal()
-            print("Username sudah digunakan!")
-            data_customer(role)
-        # PASSWORD
-        pw = input("Masukkan Password: ").strip()
-        if len(pw) < 8:
-            clear_terminal()
-            print("Password minimal 8 karakter!")
-            print()
-            data_customer(role)
+        # ====== USERNAME ======
+        while True:
+            usn = input("Masukkan Username: ").strip()
+            if len(usn) < 8:
+                clear_terminal()
+                print("Username minimal 8 karakter!")
+                continue
+            cursor.execute("SELECT 1 FROM users WHERE username = %s", (usn,))
+            if cursor.fetchone():
+                clear_terminal()
+                print("Username sudah digunakan!")
+                continue
+            break
 
-        # NO TELP
-        no_telp = input("Masukkan No. Telepon: ").strip()
-        if not (no_telp.isdigit() and len(no_telp) >= 10):
-            clear_terminal()
-            print("No. Telepon harus angka dan minimal 10 digit!")
-            print()
-            data_customer(role)
-        cursor.execute("SELECT 1 FROM users WHERE no_telp = %s", (no_telp,))
-        if cursor.fetchone():
-            clear_terminal()
-            print("No. Telepon sudah digunakan!")
-            print()
-            data_customer(role)
+        # ====== PASSWORD ======
+        while True:
+            pw = input("Masukkan Password: ").strip()
+            if len(pw) < 8:
+                clear_terminal()
+                print("Password minimal 8 karakter!")
+                continue
+            break
 
-        # WILAYAH
-        cursor.execute("SELECT id_kabupaten, nama FROM kabupaten")
-        print("\nPilih Kabupaten:")
-        for i, n in cursor.fetchall():
-            print(f"{i}. {n}")
-        id_kab = int(input("ID Kabupaten: "))
+        # ====== NO TELP ======
+        while True:
+            no_telp = input("Masukkan No. Telepon: ").strip()
+            if not (no_telp.isdigit() and len(no_telp) >= 10):
+                clear_terminal()
+                print("No. Telepon harus angka dan minimal 10 digit!")
+                continue
+            cursor.execute("SELECT 1 FROM users WHERE no_telp = %s", (no_telp,))
+            if cursor.fetchone():
+                clear_terminal()
+                print("No. Telepon sudah digunakan!")
+                continue
+            break
 
-        cursor.execute("SELECT id_kecamatan, nama FROM kecamatan WHERE id_kabupaten = %s", (id_kab,))
-        print("\nPilih Kecamatan:")
-        for i, n in cursor.fetchall():
-            print(f"{i}. {n}")
-        id_kec = int(input("ID Kecamatan: "))
+        # ROLE CHECK: CUSTOMER WAJIB ISI ALAMAT
+        if role == "customer":
+            # PILIH KABUPATEN
+            cursor.execute("SELECT id_kabupaten, nama FROM kabupaten")
+            print("\nPilih Kabupaten:")
+            data_kab = cursor.fetchall()
+            for i, n in data_kab:
+                print(f"{i}. {n}")
+            while True:
+                id_kab_input = input("ID Kabupaten: ").strip()
+                if not id_kab_input:
+                    print("ID Kabupaten tidak boleh kosong!")
+                    continue
+                id_kab = int(id_kab_input)
+                break
 
-        cursor.execute("SELECT id_desa, nama FROM desa WHERE id_kecamatan = %s", (id_kec,))
-        print("\nPilih Desa:")
-        for i, n in cursor.fetchall():
-            print(f"{i}. {n}")
-        id_desa = int(input("ID Desa: "))
+            # PILIH KECAMATAN
+            cursor.execute("SELECT id_kecamatan, nama FROM kecamatan WHERE id_kabupaten = %s", (id_kab,))
+            print("\nPilih Kecamatan:")
+            data_kec = cursor.fetchall()
+            for i, n in data_kec:
+                print(f"{i}. {n}")
+            while True:
+                id_kec_input = input("ID Kecamatan: ").strip()
+                if not id_kec_input:
+                    print("ID Kecamatan tidak boleh kosong!")
+                    continue
+                id_kec = int(id_kec_input)
+                break
 
-        print("\nAlamat tersimpan.\n")
-         # BUAT KERANJANG BARU
-        sql_create_keranjang = """
-            INSERT INTO keranjang_pesanan 
-            DEFAULT VALUES
-            RETURNING id_keranjang
-            """
-        cursor.execute(sql_create_keranjang)
-        id_keranjang = cursor.fetchone()[0] # ID Keranjang baru sudah didapatkan
+            # PILIH DESA
+            cursor.execute("SELECT id_desa, nama FROM desa WHERE id_kecamatan = %s", (id_kec,))
+            print("\nPilih Desa:")
+            data_desa = cursor.fetchall()
+            for i, n in data_desa:
+                print(f"{i}. {n}")
+            while True:
+                id_desa_input = input("ID Desa: ").strip()
+                if not id_desa_input:
+                    print("ID Desa tidak boleh kosong!")
+                    continue
+                id_desa = int(id_desa_input)
+                break
 
-        cursor.execute("""
-            INSERT INTO users (nama, username, password, no_telp, id_role)
-            VALUES (%s, %s, %s, %s, %s)
-            RETURNING id_user;
-        """, (nama, usn, pw, no_telp, role))
+            # DETAIL ALAMAT
+            while True:
+                detail_alamat = input("\nMasukkan Detail Alamat (nama jalan, RT/RW, no rumah): ").strip()
+                if detail_alamat:
+                    break
+                clear_terminal()
+                print("Detail alamat tidak boleh kosong!")
+        else:
+            detail_alamat = "Tidak ada"
+            id_desa = None 
 
-        id_user = cursor.fetchone()[0]
-
-        sql_update_user = """
-            UPDATE users
-            SET id_keranjang = %s
-            WHERE id_user = %s;
-            """
-        cursor.execute(sql_update_user, (id_keranjang, id_user))
-
-        # INSERT ALAMAT
-        cursor.execute("""
-            INSERT INTO alamat (id_user, id_desa)
-            VALUES (%s, %s)
-        """, (id_user, id_desa))
-
-        connection.commit()
-
-        gambar()
-        print("=== Selamat Akun Anda Telah Dibuat ===")
-        dashboard()
-    except Exception as e:
-        print("Terjadi error:", e)
-        connection.rollback()
-        register()
-
-def data_produsen(role):
-    connection, cursor = connect_db() 
-    try:
-      print()
-      nama = input("Masukkan Nama: ").strip()
-      if not nama:
-        print("Nama tidak boleh kosong!")
-        input("Tekan enter untuk kembali...")
-        return
-      usn = input("Masukkan Username: ").strip()
-      if not usn:
-        print("Username tidak boleh kosong!")
-        input("Tekan enter untuk kembali...")
-        return
-      if len(usn) > 8:
-        print('Username tersimpan')
-      else:
-        print("username harus lebih dari 8")
-        return
-      cursor.execute("SELECT username FROM users WHERE username = %s", (usn,))
-      if cursor.fetchone():
-         clear_terminal()
-         print("Username sudah terdaftar, gunakan yang lain.")
-         return
-      pw = input("Masukkan Password:  ").strip()
-      if not pw:
-        print("Password tidak boleh kosong!")
-        input("Tekan enter untuk kembali...")
-        return
-      if len(pw) > 8:
-        print('Password tersimpan')
-      else:
-        clear_terminal()
-        print("Password harus lebih dari 8. Silahkan Mulai Kembali")
-        return
-      no_telp = input("Masukkan No. Telepon: ").strip()
-      if not no_telp:
-        print("Nomer telepon tidak boleh kosong")
-        input("Tekan enter untuk kembali...")
-        return
-      if no_telp.isdigit() and len(no_telp) >= 10:
-        print('No. Telepon tersimpan')
-      else:
-        clear_terminal()
-        print("No. Telepon harus berupa angka dan minimal 10 digit. Silahkan Mulai Kembali")
-        input("Tekan enter untuk kembali....")
-        register()
-      cursor.execute("SELECT no_telp FROM users WHERE no_telp = %s", (no_telp,))
-      if cursor.fetchone():
-        clear_terminal()
-        print("No. Telepon sudah terdaftar. Silahkan Mulai Kembali")
-        return
     except Exception as e:
         print(f"Terjadi Error: {e}")
         return register()
 
+    # ====== INSERT USERS ======
     query = """
-        INSERT INTO users (nama, username, password, no_telp, id_role)
-         VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO users (username, password, nama, no_telp, role, detail_alamat, id_desa)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
     """
-    cursor.execute(query, (nama, usn, pw, no_telp, role))
+    cursor.execute(query, (usn, pw, nama, no_telp, role, detail_alamat, id_desa))
     connection.commit()
 
-    cursor.execute("SELECT id_user FROM users WHERE username = %s", (usn,))
-    id_user = cursor.fetchone()[0]
     gambar()
     print("=== Selamat Akun Anda Telah Dibuat ===")
     dashboard()
+
 gambar()
 print("=== WELCOME TO OUR PLATFORM ===")
 print()
