@@ -365,7 +365,7 @@ def Keranjang_Belanja(id_user):
                         status_item_baru = 'di beli'
                         data_update = (status_item_baru, id_pesanan)
                         cursor.execute(sql_update_status, data_update)
-                        connection.commit()
+                        # connection.commit()
                                     
 
                         id_transaksi_baru = result[0]
@@ -386,12 +386,15 @@ def Keranjang_Belanja(id_user):
                                 qty_dibeli = item_data[1]
 
                                 sql_insert_transaki = """
-                                                        INSERT INTO transaksi (id_transaksi, tanggal_transaksi, metode_pembayaran, status_transaksi, id_pesanan)
-                                                        VALUES (%s, NOW(), %s, %s, %s)
+                                                        INSERT INTO transaksi (tanggal_transaksi, metode_pembayaran, status_transaksi, id_pesanan)
+                                                        VALUES (NOW(), %s, %s, %s)
+                                                        RETURNING id_transaksi;
                                 """
-                                transaksi_data = (id_transaksi_baru, metode_pembayaran, status_transaksi, id_pesanan)
+                                transaksi_data = ( metode_pembayaran, status_transaksi, id_pesanan)
                                 cursor.execute(sql_insert_transaki, transaksi_data)
-
+                                result_transaksi = cursor.fetchone() 
+                                id_transaksi_baru = result_transaksi[0] 
+                                connection.commit()
                 
                                 sql_update_stok = """
                                                 UPDATE riwayat_produksi
@@ -400,13 +403,13 @@ def Keranjang_Belanja(id_user):
                                     """
                                 cursor.execute(sql_update_stok, (qty_dibeli, id_benih_beli))
 
-                        hold = ', '.join(['%s'] * len(id_detail))
+                        # hold = ', '.join(['%s'] * len(id_detail))
 
                       
                     print()
                     print("="*50)
                     print("PEMBELIAN BERHASIL!")
-                    print(f" No. Pesanan: #{id_pesanan_baru}")
+                    print(f" No. Pesanan: #{id_transaksi_baru}")
                     print(f" Total: Rp {total_bayar}")
                     print("🛒 Keranjang sekarang KOSONG") 
                     print()
@@ -448,13 +451,15 @@ def Riwayat_Transaksi(id_user):
       if pilih == '1':
           # checkout detail = join
           query = """
-                  SELECT t.tanggal_transaksi, b.nama_benih, d.quantity, d.quantity*b.harga AS Total_bayar
+                  SELECT t.tanggal_transaksi, b.nama_benih, d.quantity, d.quantity*b.harga AS Total_bayar, u.detail_alamat, s.nama, k.nama
 
                   FROM transaksi t
                   JOIN detail_pesanan d ON d.id_pesanan = t.id_pesanan
                   JOIN pesanan p ON p.id_pesanan = d.id_pesanan
                   JOIN benih b ON b.id_benih = d.id_benih 
-                  JOIN users u ON p.id_user = u.id_user  
+                  JOIN users u ON p.id_user = u.id_user 
+                  JOIN desa s ON u.id_desa = s.id_desa
+                  JOIN kecamatan k ON s.id_kecamatan = k.id_kecamatan
                   WHERE p.id_user = %s AND t.status_transaksi = %s
                   ORDER BY t.tanggal_transaksi DESC, t.id_transaksi;
           """
@@ -475,11 +480,15 @@ def Riwayat_Transaksi(id_user):
                 nama = row[1]
                 qty = row[2]
                 harga = row[3]
+                jalan = row[4]
+                desa = row[5]
+                kecamatan = row[6]
+            
 
 
-                print(f"| {tanggal:<10} | {nama:<20} | {qty:<5} | {harga:<10} |")
-                print("-" * 65)
-      
+                print(f"| {tanggal:^10} | {nama:^20} | {qty:^5} | {harga:^10} | {jalan:^25} | {desa:^10} | {kecamatan:^10} |")
+                print("-" * 112)
+          print()
           balik = input('Tekan enter untuk kembali ke menu customer')
           if balik == '':
             clear_terminal()
@@ -1238,4 +1247,5 @@ print("=== WELCOME TO OUR PLATFORM ===")
 print()
 print()
 dashboard()
+
 
