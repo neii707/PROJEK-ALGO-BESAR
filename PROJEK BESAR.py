@@ -1103,10 +1103,11 @@ def register():
       pilih = input("Pilih Akun Role yang ingin anda buat 1/2: ")
       if pilih == "1": 
         data_customer(1)
-        role = 1
+        role = 'petani'
       elif pilih == "2":
         data_produsen(2)
-        role = 2
+        role = 'produsen'
+        commit_db()
       else :
         clear_terminal()
         gambar()
@@ -1115,7 +1116,6 @@ def register():
         print("=== INPUT TIDAK VALID COBA LAGI ===")
         print()
         register()
-      close_db()
     except Exception as e :
       print(f"Terjadi Error: {e}")
       register()
@@ -1185,37 +1185,36 @@ def data_customer(role):
         for i, n in cursor.fetchall():
             print(f"{i}. {n}")
         id_desa = int(input("ID Desa: "))
+        
+        detail_alamat = input("\nMasukkan Detail Alamat (nama jalan, RT/RW, no rumah): ").strip()
+        if not detail_alamat :
+            clear_terminal()
+            print("Detail alamat tidak boleh kosong!")
 
         print("\nAlamat tersimpan.\n")
-         # BUAT KERANJANG BARU
-        # sql_create_keranjang = """
-        #     INSERT INTO keranjang_pesanan 
-        #     DEFAULT VALUES
-        #     RETURNING id_keranjang
-        #     """
-        # cursor.execute(sql_create_keranjang)
-        # id_keranjang = cursor.fetchone()[0] # ID Keranjang baru sudah didapatkan
 
+        role = 'petani'
         cursor.execute("""
-            INSERT INTO users (nama, username, password, no_telp, role)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO users (nama, username, password, no_telp, role, detail_alamat, id_desa)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             RETURNING id_user;
-        """, (nama, usn, pw, no_telp, role))
+         """,
+        (nama, usn, pw, no_telp, role, detail_alamat, id_desa))
 
         id_user = cursor.fetchone()[0]
 
-        sql_update_user = """
-            UPDATE users
-            SET id_keranjang = %s
-            WHERE id_user = %s;
-            """
-        cursor.execute(sql_update_user, (id_keranjang, id_user))
+        # sql_update_user = """
+        #     UPDATE users
+        #     SET id_keranjang = %s
+        #     WHERE id_user = %s;
+        #     """
+        # cursor.execute(sql_update_user, ( id_user))
 
-        # INSERT ALAMAT
-        cursor.execute("""
-            INSERT INTO alamat (id_user, id_desa)
-            VALUES (%s, %s)
-        """, (id_user, id_desa))
+        # # INSERT ALAMAT
+        # cursor.execute("""
+        #     INSERT INTO alamat (id_user, id_desa)
+        #     VALUES (%s, %s)
+        # """, (id_user, id_desa))
 
         connection.commit()
 
@@ -1284,10 +1283,13 @@ def data_produsen(role):
         return register()
 
     query = """
-        INSERT INTO users (nama, username, password, no_telp, id_role)
-         VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO users (nama, username, password, no_telp, role, detail_alamat, id_desa)
+         VALUES (%s, %s, %s, %s, %s, %s, %s)
     """
-    cursor.execute(query, (nama, usn, pw, no_telp, role))
+    role = 'produsen'
+    alamat = 'tidak ada'
+    desa = None
+    cursor.execute(query, (nama, usn, pw, no_telp, role, alamat, desa))
     connection.commit()
 
     cursor.execute("SELECT id_user FROM users WHERE username = %s", (usn,))
