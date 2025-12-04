@@ -717,11 +717,11 @@ def cek_stok(id_user):
             """
             cursor.execute(query)
             data = cursor.fetchall()
-            print("\nID | Nama Benih | Harga | Kadaluarsa | Total Stok")
-            print("-" * 100)
+            print("\n  ID  |      Nama Benih      |   Harga    | Kadaluarsa | Total Stok |")
+            print("-" * 70)
             for row in data:
-                print(f"{row[0]} | {row[1]} | {row[2]} | {row[3]} | {row[4]}")
-            print("-" * 100)
+                print(f"{row[0]:^5} | {row[1]:^20} | {row[2]:^10} | {row[3]} | {row[4]:^10} |")
+            print("-" * 70)
         elif pilih == '2':
             clear_terminal()
             return menu_produsen(id_user)
@@ -751,8 +751,8 @@ def update_benih(id_user):
         cursor.execute(query)
         data = cursor.fetchall()
 
-        print("ID | Nama Benih | Daftar Produksi | Total Stok | Status Stok")
-        print("-" * 120)
+        print("  ID  |      Nama Benih      | Daftar Produksi | Total Stok | Status Stok |")
+        print("-" * 75)
 
         for row in data:
             id_benih = row[0]
@@ -769,9 +769,9 @@ def update_benih(id_user):
             else:
              status_stok = "Aman" 
 
-            print(f"{id_benih} | {nama} | {daftar_produksi} | {total} | {status_stok}")
-            
-        print("-" * 120)
+            print(f"{id_benih:^5} | {nama:^20} | {daftar_produksi:^15} | {total:^10} | {status_stok:^11} |")
+        
+        print("-" * 75)
         print()
         id_benih = input("Masukkan ID Benih: ")
         if not id_benih.isdigit():
@@ -853,12 +853,13 @@ def update_benih(id_user):
     menu_produsen(id_user)
 def daftar_pesanan(id_user):
     connection, cursor = connect_db()
-    print("╔════════════════════════════════════════════════════════╗")
-    print("║                    DAFTAR PESANAN                      ║")
-    print("╚════════════════════════════════════════════════════════╝")
+    print("╔═══════════════════════════════════════════════════════════════════════════════╗")
+    print("║                                DAFTAR PESANAN                                 ║")
+    print("╚═══════════════════════════════════════════════════════════════════════════════╝")
+    print()
     print()
     try:
-        print(f"{'ID Pesanan':<12} {'ID User':<10} {'Benih':<20} {'Jumlah Pesanan':<10} {'Tanggal Pesan':<15}")
+        print(f"{'ID Pesanan':^10} | {'ID User':^5} | {'Benih':^20} | {'Jumlah Pesanan':^10} | {'Tanggal Pesan':^15} |")
         print("-"*80)
     
         query =  """
@@ -877,7 +878,7 @@ def daftar_pesanan(id_user):
             jumlah = row[3]
             tanggal = str(row[4]) if row[4] else "-" 
 
-            print(f"{id_pesanan:<12} {user_id:<10} {nama_benih:<20} {jumlah:<10} {tanggal:<15}")
+            print(f"{id_pesanan:^10} | {user_id:^7} | {nama_benih:^20} | {jumlah:^14} | {tanggal:^15} |")
         print("-"*80)
     except Exception as e:
         print(f"Terjadi Error: {e}")
