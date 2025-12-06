@@ -439,21 +439,24 @@ def Keranjang_Belanja(id_user):
                         # hold = ', '.join(['%s'] * len(id_detail))
 
                       
-                    print()
-                    print("="*50)
-                    print("PEMBELIAN BERHASIL!")
-                    print(f" No. Pesanan: #{id_transaksi_baru}")
-                    print(f" Total: Rp {total_bayar}")
-                    print("🛒 Keranjang sekarang KOSONG") 
-                    print()
-                    pergi = input('Silahkan tekan enter untuk pergi kembali ke menu customer')
-                    if pergi == '':
-                        commit_db(connection, cursor)
+                        print()
+                        print("="*50)
+                        print("PEMBELIAN BERHASIL!")
+                        print(f" No. Pesanan: #{id_transaksi_baru}")
+                        print(f" Total: Rp {total_bayar}")
+                        print("🛒 Keranjang sekarang KOSONG") 
+                        print()
+                        pergi = input('Silahkan tekan enter untuk pergi kembali ke menu customer')
+                        if pergi == '':
+                            commit_db(connection, cursor)
+                            clear_terminal()
+                            menu_customer(id_user)
+                        else :
+                            clear_terminal()
+                            print('PILIHAN TIDAK VALID KEMBALI KE MENU CUSTOMER')
+                            menu_customer(id_user)
+                    elif konfir == 'tidak':
                         clear_terminal()
-                        menu_customer(id_user)
-                    else :
-                        clear_terminal()
-                        print('PILIHAN TIDAK VALID KEMBALI KE MENU CUSTOMER')
                         menu_customer(id_user)
                 else:
                         clear_terminal()
@@ -1336,4 +1339,5 @@ print("=== WELCOME TO OUR PLATFORM ===")
 print()
 print()
 dashboard()
+
 
