@@ -44,6 +44,7 @@ def Katalog_Benih(id_user):
     print("5. Kembali ke Menu Customer")
     print()
     pilih = input('Pilih Menu anda 1/2/3/4/5: ')
+    # menampilkan pilihan menu yang ada di katalog beserta inputan untuk memilih salah satu menu
     
     QUERY_BASE = """
         SELECT
@@ -54,14 +55,18 @@ def Katalog_Benih(id_user):
         LEFT JOIN riwayat_produksi r ON b.id_benih = r.id_benih
         GROUP BY b.id_benih, b.nama_benih, k.nama_kategori, b.harga, r.tanggal_kadaluarsa 
     """
+    # query untuk default untuk menampilan produk
     
     try: 
         if pilih == '1':
             query = QUERY_BASE
+            # eksekusi menampilkan query default
         elif pilih == "2":
             query = QUERY_BASE + " ORDER BY b.harga ASC"    
+            # eksekusi untuk menampilkan produk urut berdasarkan harga terendah
         elif pilih == "3":
             query = QUERY_BASE + " ORDER BY b.harga DESC"
+            # eksekusi untuk menampilkan produk urut berdasarkan harga tertinggi
         elif pilih == "4":
             query =  """
             SELECT
@@ -74,18 +79,23 @@ def Katalog_Benih(id_user):
             HAVING SUM(r.jumlah_produksi) > 0 
             ORDER BY b.nama_benih ASC
         """
+            # eksekusi untuk menampilkan produk urut berdasarkan stok tersedia
         elif pilih == "5":
             clear_terminal()
             return menu_customer(id_user)
+            # eksekusi untuk keluar dari katalog dan pergi ke menu customer 
         else:
             print("Pilihan tidak valid.")
             return Katalog_Benih(id_user)
+            # jika nilai yg diinputkan tidak sesuai menu maka akan kembali ke menu katalog
 
         if pilih in ['1', '2', '3', '4']:
             cursor.execute(query)
             data = cursor.fetchall()
+            # jika user memberikan pilihan yang valid ('1' sampai '4') maka database akan dihubungi untuk mengambil data
         else:
             data = []
+            # jika pilihan tidak valid, variabel data disetel kosong
 
         clear_terminal()
         print("\n" + "="*75)
@@ -94,64 +104,81 @@ def Katalog_Benih(id_user):
         print("="*75)
         print("     Gunakan ID Benih untuk menambahkan ke keranjang belanja Anda.")
         print("="*75)
-
+        # tampilan judul
         if not data:
             if pilih in ['1', '2', '3', '4']:
                 print("Belum ada benih yang tersedia.")
-            
+                # jika pilih valid (1-4), tapi database mengembalikan list kosong (data = []), maka pesan "Belum ada benih yang tersedia" akan ditampilkan
             print("="*75 + "\n")
             return menu_customer(id_user)
+            # jika benih belum tersedia maka akan kembali ke menu customer
             
         kategori_sekarang = None
-
+        # mendefinisikan variable dengan nilai none sebagai nilai awal
         for row in data:
             id_benih, nama_benih, nama_kategori, harga, kadaluarsa, stok = row
+            # mengulang tiap baris data yg didalam varible dan membongkar nilai tiap kolom 
 
             if nama_kategori != kategori_sekarang:
+            #  memeriksa apakah nilai kolom nama_kategori pada baris data yang sedang diproses berbeda dengan nilai yang tersimpan di variabel kategori_sekarang
                 kategori_sekarang = nama_kategori
+                #  memperbarui variabel kontrol kategori_sekarang dengan nama kategori yang baru, mencegah judul kategori dicetak berulang kali untuk benih yang masih dalam kategori yang sama
                 print(f"\n📂 Kategori: {nama_kategori}")
                 print("-"*75)
                 print(f"{'ID Benih':^10} {'Nama Benih':^25} {'Harga':^10} {'Tanggal Kadaluarsa':^20} {'Stok':^7}")
                 print("-"*75)
+                # mencetak header untuk ditampilkan di katalog
             
             if kadaluarsa is not None:
                 tanggal_str = kadaluarsa.strftime("%Y-%m-%d")
+                # jika kolom kadaluarsa ada maka tanggal akan diformat dari tahun-bulan-tanggal
             else:
-                tanggal_str = "N/A"
+                tanggal_str = "kosong"
+                # jika kolom kadaluarsa tidak punya nilai maka akan menampilkan 'kosong'
                 
-            stok_display = stok if stok is not None else 0
-            
+            stok_display = stok if stok is not None else 0 
+            # stok display akan menggunakan nilai stok jika ada nilainya, jika kosong maka akan menampilkan '0'
             id_benih_display = id_benih if id_benih is not None else ""
+            # id benih display akan menggunakan nilai id benih jika ada nilainya, jika kosong maka akan menampilkan string kosong
             nama_benih_display = nama_benih if nama_benih is not None else ""
+            # nama benih display akan menggunakan nilai nama benih jika ada nilainya, jika kosong maka akan menampilkan string kosong
             harga_display = harga if harga is not None else ""
-
+            # harga display akan menggunakan nilai harga jika ada nilainya, jika kosong maka akan menampilkan string kosong
             print(f"{id_benih_display:^10} {nama_benih_display:^25} {harga_display:^10} {tanggal_str:^20} {stok_display:^7}")
-            
+            # menampilakan header tiap kolom akan diratakan tengah dengan jarak karakter sesuai nilai diatas
             stok = stok_display
-            
+ 
         print()
         kelas = input('pilih 1 untuk kembali dan 2 untuk pilih benih: ')
+        # user diminta memilih kondisi antara kembali atau melanjutkan transaksi benih
         if kelas == '1':
           clear_terminal()
           Katalog_Benih(id_user)
+            # jika pilih satu maka akan kembali ke katalog benih
         elif kelas == '2':
+        # jika pilih 2 maka akan lanjut ke transaksi
           connection, cursor = connect_db()
           aku = input('masukkan id benih yg mau dibeli: ')
+            # user diminta menginputkan id benih yang sebelumnya ditampilkan di katalog
           kmu = input('masukkan jumlah benih yg dibeli: ')
+            # user diminta menginputkan jumlah benih yg akan dibeli
           
           if not aku or not kmu:
               print(" ID Benih dan Jumlah tidak boleh kosong!")
               print()
               menu_customer(id_user)
+              # penanganan error jika input yg diberikan tidak sesuai akan manmpilkan pesan dan kembali ke menu customer
               
             
           try:
               id_benih_beli = int(aku)
               qty_dibeli = int(kmu) 
+              # mengubah nilai variable menjadi integer
           except ValueError:
               print(" Input ID Benih dan Jumlah harus berupa angka yang valid!")
               print()
               menu_customer(id_user)
+              # penanganan error jika input yg diberikan tidak sesuai akan manmpilkan pesan dan kembali ke menu customer
 
           if qty_dibeli <= 0:
                 print(" Jumlah benih harus lebih dari nol!")
@@ -159,6 +186,10 @@ def Katalog_Benih(id_user):
                 if balik == '':
                   clear_terminal()
                   Katalog_Benih(id_user)
+                else :
+                  clear_terminal()
+                  Katalog_Benih(id_user)
+            # jika jumlah yg dibeli 0 atau kurang dari itu maka akan menampilkan pesan dan akan diarahkan kembali ke menu katalog benih
               
           sql_get_stok = """
                 SELECT COALESCE(SUM(jumlah_produksi), 0)
@@ -167,6 +198,8 @@ def Katalog_Benih(id_user):
             """
           cursor.execute(sql_get_stok, (id_benih_beli,))
           stok_saat_ini = cursor.fetchone()[0]
+            # mengambil total stok dari tabel riwayat produksi untuk satu jenis benih spesifik, 
+            # sambil menjamin bahwa jika benih itu belum pernah diproduksi, stok yang diambil akan bernilai aman 0 (bukan NULL)
           
           if stok_saat_ini <= 0:
                 print(f"❌ Benih dengan ID {id_benih_beli} saat ini KOSONG (Stok: 0). Tidak bisa dibeli.")
@@ -1303,3 +1336,4 @@ print("=== WELCOME TO OUR PLATFORM ===")
 print()
 print()
 dashboard()
+
