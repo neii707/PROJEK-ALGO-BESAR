@@ -545,31 +545,41 @@ def Riwayat_Transaksi(id_user):
     print()
 # FITUR ADMIN
 def generate_laporan(id_user):
-    connect_db()
+    # Menghubungkan ke database dan mendapatkan objek koneksi dan cursor
     connection, cursor = connect_db()
+
+    # Membersihkan tampilan terminal
     clear_terminal()
+
+    # Menampilkan menu laporan
     print("\n=== MENU LAPORAN ===")
     print('1. Tampilkan seluruh Laporan')
     print('2. Tampilkan laporan berdasarkan transaksi yang selesai')
     print('3. Tampilkan laporan berdasarkan 3 bulan terakhir')
-    print('4. Kembali')
-    print()
+    print('4. Kembali\n')
+
+    # Input pilihan menu dari user
     pilih = input('Masukkan menu yang ingin ditampilkan (1/2/3/4): ')
+
     try:
-      if pilih == '1':
-          print("\n" + "="*70)
-          query = '''
+        # Menu 1: Menampilkan seluruh laporan transaksi
+        if pilih == '1':
+            print("\n" + "=" * 70)
+            query = '''
                 SELECT t.tanggal_transaksi, t.status_transaksi, t.metode_pembayaran, b.nama_benih
                 FROM transaksi t
                 JOIN detail_pesanan d ON d.id_pesanan = t.id_pesanan
                 JOIN benih b ON d.id_benih = b.id_benih
                 ORDER BY t.tanggal_transaksi DESC
             '''
-          clear_terminal()
-      elif pilih == '2':
-            # STRING_AGG(b.nama_benih, ', '): menggabungkan nama benih menjadi satu string dalam satu transaksi.
+            clear_terminal()
+
+        # Menu 2: Menampilkan laporan transaksi dengan status "selesai"
+        elif pilih == '2':
+            # STRING_AGG digunakan untuk menggabungkan beberapa nama benih menjadi satu baris per transaksi
             query = '''
-                SELECT t.tanggal_transaksi, t.status_transaksi, t.metode_pembayaran, STRING_AGG(b.nama_benih, ', ')
+                SELECT t.tanggal_transaksi, t.status_transaksi, t.metode_pembayaran,
+                       STRING_AGG(b.nama_benih, ', ')
                 FROM transaksi t
                 JOIN detail_pesanan d ON t.id_pesanan = d.id_pesanan
                 JOIN benih b ON d.id_benih = b.id_benih
@@ -577,7 +587,9 @@ def generate_laporan(id_user):
                 GROUP BY t.id_transaksi
             '''
             clear_terminal()
-      elif pilih == '3':
+
+        # Menu 3: Menampilkan laporan transaksi 3 bulan terakhir
+        elif pilih == '3':
             query = '''
                 SELECT t.tanggal_transaksi, t.status_transaksi, t.metode_pembayaran, b.nama_benih
                 FROM transaksi t
@@ -587,42 +599,69 @@ def generate_laporan(id_user):
                 ORDER BY t.tanggal_transaksi DESC
             '''
             clear_terminal()
-      elif pilih == '4' :
-        clear_terminal()
-        menu_customer(id_user)
-      else :
-        print('=== PILIHAN TIDAK VALID ===')
-        generate_laporan(id_user)
-      cursor.execute(query)
-      hasil = cursor.fetchall()
-      # fetchall() mengambil semua hasil query dalam bentuk list.
-      print("\n=== HASIL LAPORAN ===\n")
-      if not hasil:
-        print("Tidak ada data yang ditemukan.\n")
-      else:
-        for row in hasil:
-           print(f"Tanggal      : {row[0]}")
-           print(f"Status       : {row[1]}")
-           print(f"Pembayaran   : {row[2]}")
-           print(f"Benih        : {row[3]}")
-           print("-" * 40)
-      print()
-      input("Tekan enter untuk kembali....")
-      menu_admin(id_user)
+
+        # Menu 4: Kembali ke menu customer
+        elif pilih == '4':
+            clear_terminal()
+            menu_customer(id_user)
+            return
+
+        # Jika input tidak valid
+        else:
+            print('=== PILIHAN TIDAK VALID ===')
+            generate_laporan(id_user)
+            return
+
+        # Menjalankan query ke database
+        cursor.execute(query)
+
+        # Mengambil seluruh hasil query
+        hasil = cursor.fetchall()
+
+        print("\n=== HASIL LAPORAN ===\n")
+
+        # Jika tidak ada data
+        if not hasil:
+            print("Tidak ada data yang ditemukan.\n")
+        else:
+            # Menampilkan hasil laporan satu per satu
+            for row in hasil:
+                print(f"Tanggal      : {row[0]}")
+                print(f"Status       : {row[1]}")
+                print(f"Pembayaran   : {row[2]}")
+                print(f"Benih        : {row[3]}")
+                print("-" * 40)
+
+        # Menunggu input sebelum kembali ke menu admin
+        input("Tekan enter untuk kembali....")
+        menu_admin(id_user)
+
+    # Error jika terjadi kesalahan
     except Exception as e:
         print(f"Terjadi Error: {e}")
-    print()
-    print('=== DATA TIDAK VALID KEMBALI KE MENU ===')
-    print()
-    menu_admin(id_user)
+        print('\n=== DATA TIDAK VALID KEMBALI KE MENU ===\n')
+        menu_admin(id_user)
 def update_status_pengiriman(id_user):
+    # Membuat koneksi ke database
     connection, cursor = connect_db()
+
     try:
-        print("=== MONITORING & UPDATE STATUS PENGIRIMAN ===")
-        print()
+        # Judul menu
+        print("=== MONITORING & UPDATE STATUS PENGIRIMAN ===\n")
         print("Daftar Transaksi")
+
+        # Query untuk menampilkan daftar transaksi beserta:
+        # - ID transaksi
+        # - Tanggal transaksi
+        # - Nama benih (digabung jika lebih dari satu)
+        # - Total quantity
+        # - Status transaksi
         query = """
-            SELECT t.id_transaksi, t.tanggal_transaksi, STRING_AGG(b.nama_benih, ', '), SUM(d.quantity), t.status_transaksi
+            SELECT t.id_transaksi,
+                   t.tanggal_transaksi,
+                   STRING_AGG(b.nama_benih, ', '),
+                   SUM(d.quantity),
+                   t.status_transaksi
             FROM transaksi t
             JOIN detail_pesanan d ON t.id_pesanan = d.id_pesanan
             JOIN pesanan p ON t.id_pesanan = p.id_pesanan
@@ -630,104 +669,151 @@ def update_status_pengiriman(id_user):
             GROUP BY t.id_transaksi, t.tanggal_transaksi, b.nama_benih, d.quantity, t.status_transaksi
             ORDER BY t.id_transaksi
         """
+
+        # Menjalankan query
         cursor.execute(query)
+
+        # Mengambil seluruh hasil query dalam bentuk list
         results = cursor.fetchall()
-        # fetchall() mengambil semua hasil query dalam bentuk list.
+        # fetchall() akan mengembalikan list of tuple
+
         print()
+
+        # Jika tidak ada transaksi
         if not results:
-          print("Belum ada transaksi")
+            print("Belum ada transaksi")
         else:
-          print("="*70)
-          for r in results:
-            print(f"ID Transaksi : {r[0]}")
-            print(f"Tanggal      : {r[1]}")
-            print(f"Nama Benih   : {r[2]}")
-            print(f"Quantity     : {r[3]}")
-            print(f"Status       : {r[4]}")
-            print("-"*70)
-        print("="*70)
+            print("=" * 70)
+            # Menampilkan transaksi satu per satu
+            for r in results:
+                print(f"ID Transaksi : {r[0]}")
+                print(f"Tanggal      : {r[1]}")
+                print(f"Nama Benih   : {r[2]}")
+                print(f"Quantity     : {r[3]}")
+                print(f"Status       : {r[4]}")
+                print("-" * 70)
+
+        print("=" * 70)
         print()
+
+        # Menu pilihan
         print('1. Update Status Pesanan')
         print('2. Kembali')
         pilih = input('Pilih Menu: ')
+
+        # ===================== MENU UPDATE STATUS =====================
         if pilih == '1':
-          id_transaksi = input('Masukkan ID transaksi yang akan di update: ').strip()
-          clear_terminal()
-          if not id_transaksi:
-            print("\n=== ID Tidak Boleh Kosong! ===")
-            input("Tekan enter untuk kembali...")
-            return update_status_pengiriman(id_user)
-          if not id_transaksi.isdigit():
-            print("\n=== ID Transaksi Harus Berupa Angka! ===")
-            input("Enter untuk kembali...")
-            return update_status_pengiriman(id_user)
-          # MENGECEK ID TRANSAKSI APAKAH ADA DI DATABASE
-          cursor.execute("SELECT status_transaksi FROM transaksi WHERE id_transaksi = %s", (id_transaksi, ))
-          data = cursor.fetchone()
-          if not data:
-            print("\n=== ERROR: ID TRANSAKSI TIDAK DITEMUKAN ===")
-            input("Tekan enter untuk kembali...")
-            return update_status_pengiriman(id_user)
-          # TIDAK BOLEH UPDATE JIKA STATUS SUDAH SELESAI
-          status_sekarang = data[0]
-          if status_sekarang == 'selesai':
-            print("\n=== TRANSAKSI SUDAH SELESAI & TIDAK DAPAT DIUBAH ===")
-            input("Tekan enter untuk kembali...")
+            # Input ID transaksi yang ingin diupdate
+            id_transaksi = input('Masukkan ID transaksi yang akan di update: ').strip()
+            clear_terminal()
+
+            # Validasi ID tidak boleh kosong
+            if not id_transaksi:
+                print("\n=== ID Tidak Boleh Kosong! ===")
+                input("Tekan enter untuk kembali...")
+                return update_status_pengiriman(id_user)
+
+            # Validasi ID harus angka
+            if not id_transaksi.isdigit():
+                print("\n=== ID Transaksi Harus Berupa Angka! ===")
+                input("Enter untuk kembali...")
+                return update_status_pengiriman(id_user)
+
+            # Mengecek apakah ID transaksi ada di database
+            cursor.execute(
+                "SELECT status_transaksi FROM transaksi WHERE id_transaksi = %s",
+                (id_transaksi,)
+            )
+            data = cursor.fetchone()
+
+            # Jika ID transaksi tidak ditemukan
+            if not data:
+                print("\n=== ERROR: ID TRANSAKSI TIDAK DITEMUKAN ===")
+                input("Tekan enter untuk kembali...")
+                return update_status_pengiriman(id_user)
+
+            # Mengambil status transaksi saat ini
+            status_sekarang = data[0]
+
+            # Jika transaksi sudah selesai, tidak boleh diubah
+            if status_sekarang == 'selesai':
+                print("\n=== TRANSAKSI SUDAH SELESAI & TIDAK DAPAT DIUBAH ===")
+                input("Tekan enter untuk kembali...")
+                return update_status_pengiriman(id_user)
+
+            # Menampilkan status saat ini
+            print(f"Status saat ini: {status_sekarang}")
+
+            # Input status baru
+            status_baru = input(
+                'Pilih status (dikemas/dikirim/diterima/selesai): '
+            ).lower().strip()
+
+            # Daftar status yang valid
+            status_valid = ['dikemas', 'dikirim', 'diterima', 'selesai']
+
+            # Validasi status harus sesuai daftar
+            if status_baru not in status_valid:
+                print("\n=== STATUS TIDAK VALID! ===")
+                input("Tekan enter untuk kembali...")
+                return update_status_pengiriman(id_user)
+
+            # Status tidak boleh sama dengan sebelumnya
+            if status_baru == status_sekarang:
+                print("\n=== STATUS SUDAH DALAM KONDISI TERSEBUT ===")
+                input("Enter untuk kembali...")
+                return update_status_pengiriman(id_user)
+
+            # Urutan tahap status (tidak boleh mundur)
+            tahap = {
+                'dikemas': 1,
+                'dikirim': 2,
+                'diterima': 3,
+                'selesai': 4
+            }
+
+            # Mencegah update status mundur
+            if tahap[status_baru] < tahap[status_sekarang]:
+                print("\n=== STATUS TIDAK BOLEH MUNDUR ===")
+                input("Enter untuk kembali...")
+                return update_status_pengiriman(id_user)
+
+            # Mengupdate status transaksi
+            cursor.execute("""
+                UPDATE transaksi
+                SET status_transaksi = %s::enum_transaksi
+                WHERE id_transaksi = %s
+            """, (status_baru, id_transaksi))
+
+            # Menyimpan perubahan ke database
+            connection.commit()
+            # commit() wajib dipanggil agar update tersimpan permanen
+            print("\n=== STATUS BERHASIL DIUPDATE ===")
+            print("Tekan enter untuk kembali...")
+            input()
             return update_status_pengiriman(id_user)
 
-          print(f"status saat ini: {status_sekarang}")
-          status_baru = input('Pilih status (dikemas/dikirim/diterima/selesai): ').lower().strip()
-          status_valid = ['dikemas', 'dikirim', 'diterima', 'selesai']
-          # VALIDASI STATUS INPUT
-          if status_baru not in status_valid:
-            print("\n=== STATUS TIDAK VALID! ===")
-            input("Tekan enter untuk kembali...")
-            return update_status_pengiriman(id_user)
-          # TIDAK BOLEH UPDATE STATUS YANG SAMA
-          if status_baru == status_sekarang:
-            print("\n=== STATUS SUDAH DALAM KONDISI TERSEBUT ===")
-            input("Enter untuk kembali...")
-            return update_status_pengiriman(id_user)
-          # URUTAN STATUS HARUS MAJU
-          tahap = {
-            'dikemas': 1,
-            'dikirim': 2,
-            'diterima': 3,
-            'selesai': 4
-          }
-
-          if tahap[status_baru] < tahap[status_sekarang]:
-            print("\n=== STATUS TIDAK BOLEH MUNDUR ===")
-            input("Enter untuk kembali...")
-            return update_status_pengiriman(id_user)    
-          # UPDATE STATUS  
-          cursor.execute("""
-              UPDATE transaksi
-              SET status_transaksi = %s:: enum_transaksi
-              WHERE id_transaksi = %s
-          """, (status_baru, id_transaksi))
-          connection.commit()
-          # commit() menyimpan perubahan.
-          print()
-          print("=== STATUS BERHASIL DIUPDATE ===")
-          print("Tekan enter untuk kembali...")
-          return update_status_pengiriman(id_user)
-          
+        # ===================== MENU KEMBALI =====================
         elif pilih == '2':
             clear_terminal()
             menu_admin(id_user)
-        else :
-          print('=== PILIHAN TIDAK VALID ===')
-          return
+
+        # Jika pilihan menu tidak valid
+        else:
+            print('=== PILIHAN TIDAK VALID ===')
+            return
+
+    # Menangani error yang mungkin terjadi
     except Exception as e:
         print(f"Terjadi Error: {e}")
     finally:
-            if connection:
-                cursor.close()
-                connection.close()
-                print()
-                print()
-            menu_admin(id_user)
+        # Menutup koneksi database jika masih terbuka
+        if connection:
+            cursor.close()
+            connection.close()
+
+        # Kembali ke menu admin
+        menu_admin(id_user)
 # FITUR PRODUSEN
 def cek_stok(id_user):
     connect_db() 
@@ -1335,6 +1421,7 @@ print("=== WELCOME TO OUR PLATFORM ===")
 print()
 print()
 dashboard()
+
 
 
 
