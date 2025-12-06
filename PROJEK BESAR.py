@@ -207,6 +207,7 @@ def Katalog_Benih(id_user):
                 if balik == '':
                   clear_terminal()
                   Katalog_Benih(id_user)
+                # perkondisian jika stok kosong maka proses transaksi dibatalkan dan akakn dialihkan ke menu katalog benih
               
 
           if stok_saat_ini < qty_dibeli: 
@@ -216,10 +217,12 @@ def Katalog_Benih(id_user):
                 if balik == '':
                   clear_terminal()
                   Katalog_Benih(id_user)
+                # perkondisian jika stok tidak cukup maka proses transaksi dibatalkan dan akakn dialihkan ke menu katalog benih
 
           sql_get_keranjang = "SELECT id_pesanan FROM pesanan WHERE id_user = %s"
           cursor.execute(sql_get_keranjang, (id_user,))
           result = cursor.fetchone()
+        # mengambil id pesanan yang ada di tabel pesanan berdasarkan id user customer
             
 
           if result:
@@ -233,6 +236,7 @@ def Katalog_Benih(id_user):
             cursor.execute(sql_insert_pesanan, (id_user,))
             new_id = cursor.fetchone()[0]
             connection.commit()
+            # menginputkan data tanggal pesanan ke tabel pesanan berdasarkan id user customer
             
           cursor.execute("SELECT id_pesanan FROM pesanan WHERE id_user = %s", (id_user,))
 
@@ -249,6 +253,7 @@ def Katalog_Benih(id_user):
           print()
           print()
           print()
+        # menginputkan data transaksi benih ke keranjang berdasarkan id pesanan yg sudah dipilih dan status akan di set menjadi'dikeranjang'
           
           pergi = input('Benih sudah dimasukkan ke keranjang silahkan tekan enter untuk pergi ke menu keranjang')
           if pergi == '':
@@ -256,6 +261,7 @@ def Katalog_Benih(id_user):
             commit_db(connection, cursor)
             clear_terminal()
             Keranjang_Belanja(id_user)
+            # transaksi selesai dan akan dialihkan ke menu keranjang
           else :
             clear_terminal()
             print('PILIHAN TIDAK VALID KEMBALI KE MENU CUSTOMER')
@@ -274,6 +280,7 @@ def Katalog_Benih(id_user):
         print()
     finally:
         commit_db(connection, cursor)
+    # error handling 
 
 def Keranjang_Belanja(id_user):
     id_pesanan_baru = None
@@ -290,6 +297,7 @@ def Keranjang_Belanja(id_user):
             print()
 
             cursor.execute("SELECT id_pesanan FROM pesanan WHERE id_user = %s", (id_user,))
+          # mengambil id pesanan yang ada di tabel pesanan berdasarkan id user customer
             result = cursor.fetchone()
             if not result:
                 print("Keranjang tidak ditemukan.")
@@ -299,6 +307,7 @@ def Keranjang_Belanja(id_user):
                                         RETURNING id_pesanan;
                                     """
                 cursor.execute(sql_insert_pesanan, (id_user,))
+                # jika keranjang tidak ada maka akan dibikin keranjang baru
 
 
             id_pesanan = result[0]
@@ -311,11 +320,14 @@ def Keranjang_Belanja(id_user):
             """
             cursor.execute(query, (id_pesanan,))
             results = cursor.fetchall()
+          # menampilkan data keranjang dari query yg ada di postgresql yang berisi id detail, nama benih, harga, jumlah, dan total harga
+          # dipilih data dengan status pesanan 'dikeranjang'
 
             if not results:
                 print()
                 print("Keranjang belanja Anda kosong.")
                 return menu_customer(id_user)
+                # tampilan pesan jika keranjang kosong
     
             for row in results:
                 print("===============================          Detail Keranjang Belanja Anda           ===============================")
@@ -325,6 +337,7 @@ def Keranjang_Belanja(id_user):
                 print("================================================================================================================")  
             print()
             keranjang = []
+          # varibale kosong untuk menampung isi keranjang
             total_semua = 0
             keranjang.append({
             'id_detail': row[0],
@@ -336,6 +349,7 @@ def Keranjang_Belanja(id_user):
             total_semua +=row[4]
             print(f"{'TOTAL KERANJANG':<100} Rp {total_semua:>}")
             print("="*112)
+          # menambahkan data transaksi ke list keranjang 
             
             print("\nMasukkan ID DETAIL yang ingin dibeli (pisahkan dengan spasi):")
             try:
@@ -343,14 +357,17 @@ def Keranjang_Belanja(id_user):
                 if not pilihan:
                   print("Tidak ada item yang dipilih!")
                   return pilihan
+            # memilih id detail dari keranjang yang akan di checkout dan nilai akan dipisahkan oleh spasi
             
                 id_detail = [int(x.strip()) for x in pilihan.split()]
+                #  membuat daftar integer dari ID item yang ingin diproses oleh user.
                 dipilih = [item for item in keranjang if int(str(item['id_detail']).strip()) in id_detail]
-                
+                #  membuat list baru bernama dipilih yg hanya berisi objek keranjang yang telah dipilih oleh user (disaring berdasarkan id).
                 if not dipilih:
                     print("Tidak ada item yang valid dipilih!")
                     clear_terminal()
                     menu_customer(id_user)
+                # jika tidak ada item yg dipilih maka akan dialihkan ke menu customer
                 
                 print(f"\n✅ {len(dipilih)} item dipilih untuk checkout!")
                 print("\n" + "="*100)
@@ -358,8 +375,10 @@ def Keranjang_Belanja(id_user):
                 print("="*100)
                 print(f"{'ID':<8} {'NAMA BENIH':<25} {'HARGA':<12} {'QTY':>4} {'SUB TOTAL':>15}")
                 print("-" * 100)
+                # tampilan header di menu checkout dan diatur posisi berdasarkan mulai dari arah kiri atau kanan berjarak karakter
                     
                 total_bayar = 0
+                # variable menampung nilai total bayar kosongan
                 for item in dipilih:
                     print(f"{item['id_detail']:<8} {item['nama_benih']:<25} Rp {item['harga']:>3} {item['jumlah']:>7}        Rp {item['total_harga']:>7}")
                     total_bayar += item['total_harga']
@@ -367,6 +386,7 @@ def Keranjang_Belanja(id_user):
                     print("-" * 100)
                     print(f"{'TOTAL YANG HARUS DIBAYAR':<58} Rp {total_bayar:>3}")
                     print("="*100)
+                #  looping transaksi untuk tiap item yang dipilih 
                     
                     cursor.execute("SELECT id_pesanan FROM pesanan WHERE id_user = %s", (id_user,))
                     keranjang = cursor.fetchone()
@@ -378,27 +398,32 @@ def Keranjang_Belanja(id_user):
                     print("="*50)
                     
                     metode_pembayaran = input("Metode Pembayaran tunai/non tunai): ").strip().lower()
+                    # konfirmasi untuk melanjutkan pembayaran
                     
                     if not metode_pembayaran :
                         print(" Metode pembayaran wajib diisi!")
-                        metode_pembayaran
+                        Keranjang_Belanja(id_user)
+                    # jika input tidak sesuai akan menampilkan pesan dan akan dialihkan kembali ke keranjang
                     elif metode_pembayaran != 'tunai' and 'non tunai':
                         print('PILIHAN TIDAK VALID')
                         Keranjang_Belanja(id_user)
+                    # jika input tidak sesuai yang diminta akan menampilkan pesan dan akan dialihkan kembali ke keranjang
                     
                     status_transaksi = 'dikemas'
 
                     konfir = input('Anda yakin ingin untuk Membeli item ini ? ya/tidak: ').strip().lower()
+                    # konfirmasi untuk melanjutkan transaksi
                     if konfir == 'ya':
                         sql_update_status = """
                             UPDATE detail_pesanan
                             SET status_pesanan = %s
                             WHERE id_pesanan = %s 
                         """
+                        # data checkout akan ditambahkan ke detail pesanan dengan status 'dibeli'
                         status_item_baru = 'di beli'
                         data_update = (status_item_baru, id_pesanan)
                         cursor.execute(sql_update_status, data_update)
-                        # connection.commit()
+                        
                                     
 
                         id_transaksi_baru = result[0]
@@ -413,7 +438,7 @@ def Keranjang_Belanja(id_user):
                             """
                             cursor.execute(info, (id_detail_keranjang,))
                             item_data = cursor.fetchone()
-                            
+                            # mengambil data id benih dan jumlah dalam checkout untuk disimpan ke dalam variable item data
                             if item_data:
                                 id_benih_beli = item_data[0]
                                 qty_dibeli = item_data[1]
@@ -428,6 +453,7 @@ def Keranjang_Belanja(id_user):
                                 result_transaksi = cursor.fetchone() 
                                 id_transaksi_baru = result_transaksi[0] 
                                 connection.commit()
+                                # menambahkan data baru ke dalam tabel transaksi berdasarkan data transaksi yang sudah di checkout
                 
                                 sql_update_stok = """
                                                 UPDATE riwayat_produksi
@@ -436,7 +462,7 @@ def Keranjang_Belanja(id_user):
                                     """
                                 cursor.execute(sql_update_stok, (qty_dibeli, id_benih_beli))
 
-                        # hold = ', '.join(['%s'] * len(id_detail))
+                        # mengupdate stok benih dengan mengurangi stok benih dengan jumlah benih yang dibeli pada saat transaksi
 
                       
                         print()
@@ -446,11 +472,13 @@ def Keranjang_Belanja(id_user):
                         print(f" Total: Rp {total_bayar}")
                         print("🛒 Keranjang sekarang KOSONG") 
                         print()
+                        # tampilan pesan transaksi berhasil dengan menampilkan id transaksi baru dan total bayar setaip benih yang dibeli 
                         pergi = input('Silahkan tekan enter untuk pergi kembali ke menu customer')
                         if pergi == '':
                             commit_db(connection, cursor)
                             clear_terminal()
                             menu_customer(id_user)
+                            # intruksi untuk kembali ke menu customer begitu transaksi selesai
                         else :
                             clear_terminal()
                             print('PILIHAN TIDAK VALID KEMBALI KE MENU CUSTOMER')
@@ -458,6 +486,7 @@ def Keranjang_Belanja(id_user):
                     elif konfir == 'tidak':
                         clear_terminal()
                         menu_customer(id_user)
+                    # jika konfirmasi menolak pembayarna maka akan dialihkan ke menu customer
                 else:
                         clear_terminal()
                         print('PILIHAN TIDAK VALID KEMBALI KE KERANJANG')
@@ -475,6 +504,7 @@ def Keranjang_Belanja(id_user):
     finally:
         commit_db(connection, cursor)
         print() 
+    # error handling
 def Riwayat_Transaksi(id_user):
     connect_db()
     connection, cursor = connect_db()
@@ -482,10 +512,10 @@ def Riwayat_Transaksi(id_user):
     print('1. Tampilkan Fitur Transaksi')
     print('2. Kembali Menu Customer')
     pilih = input('Pilih Menu anda 1/2: ')
+    # menampilkan menu yang ada di riwayat transaksi
     try:
       clear_terminal()
       if pilih == '1':
-          # checkout detail = join
           query = """
                   SELECT t.tanggal_transaksi, b.nama_benih, d.quantity, d.quantity*b.harga AS Total_bayar, u.detail_alamat, s.nama, k.nama
 
@@ -500,6 +530,7 @@ def Riwayat_Transaksi(id_user):
                   ORDER BY t.tanggal_transaksi DESC, t.id_transaksi;
           """
           status = 'selesai'
+          # menampilakn seluruh riwayat transaksi dengan status 'selesai'.
           cursor.execute(query, (id_user, status))
           results = cursor.fetchall()
           print()
@@ -510,6 +541,7 @@ def Riwayat_Transaksi(id_user):
               print("Tidak ada riwayat transaksi.")
               print()
               menu_customer(id_user)
+              # pesan jika tidak ada riwayat transaksi
           else:
               for row in results:
                 tanggal = str(row[0]) 
@@ -519,10 +551,12 @@ def Riwayat_Transaksi(id_user):
                 jalan = row[4]
                 desa = row[5]
                 kecamatan = row[6]
+                # mendefinisikan kolom untuk tampilan tabel riwayat transaksi
             
 
 
                 print(f"| {tanggal:^10} | {nama:^20} | {qty:^5} | {harga:^10} | {jalan:^25} | {desa:^10} | {kecamatan:^10} |")
+                  # nama nama kolom yang ada di riwayat transaksi diposisikan ditengah dan berjarak karakter
                 print("-" * 112)
           print()
           balik = input('Tekan enter untuk kembali ke menu customer')
@@ -531,9 +565,11 @@ def Riwayat_Transaksi(id_user):
             menu_customer(id_user)
           else :
             menu_customer(id_user)
+        # intruksi untuk kembali ke menu customer 
       
       elif pilih == '2':
         menu_customer(id_user)
+        # pilihan jika ingin kembali ke menu customer
       
       else:
         print('=== PILIHAN TIDAK VALID ===')
@@ -543,6 +579,7 @@ def Riwayat_Transaksi(id_user):
           commit_db(connection, cursor)
     print()
     print()
+    # error handling
 # FITUR ADMIN
 def generate_laporan(id_user):
     # Menghubungkan ke database dan mendapatkan objek koneksi dan cursor
@@ -1186,6 +1223,7 @@ def login():
         SELECT id_user, role FROM users
         WHERE username = %s AND password = %s
     """
+    # memilih akun berdasarkan username, role dan password
     cursor.execute(query, (usn, pw))
     result = cursor.fetchone()
     
@@ -1214,6 +1252,7 @@ def login():
         print("Role tidak dikenali.")
         print()
         dashboard()
+        # intruksi untuk mengalihkan ke menu berdasarkan role yang sudah terdefinisi di login
 # BIKIN AKUN BARU
 def register():
     try: 
@@ -1290,18 +1329,21 @@ def data_customer(role):
         cursor.execute("SELECT id_kabupaten, nama FROM kabupaten")
         print("\nPilih Kabupaten:")
         for i, n in cursor.fetchall():
+        # mengambil semua baris data hasil query i untuk id dan n nama kabupaten
             print(f"{i}. {n}")
         id_kab = int(input("ID Kabupaten: "))
 
         cursor.execute("SELECT id_kecamatan, nama FROM kecamatan WHERE id_kabupaten = %s", (id_kab,))
         print("\nPilih Kecamatan:")
         for i, n in cursor.fetchall():
+        # mengambil semua baris data hasil query i untuk id dan n nama kecamatan
             print(f"{i}. {n}")
         id_kec = int(input("ID Kecamatan: "))
 
         cursor.execute("SELECT id_desa, nama FROM desa WHERE id_kecamatan = %s", (id_kec,))
         print("\nPilih Desa:")
         for i, n in cursor.fetchall():
+        # mengambil semua baris data hasil query i untuk id dan n nama desa
             print(f"{i}. {n}")
         id_desa = int(input("ID Desa: "))
         
@@ -1322,21 +1364,8 @@ def data_customer(role):
 
         id_user = cursor.fetchone()[0]
 
-        # sql_update_user = """
-        #     UPDATE users
-        #     SET id_keranjang = %s
-        #     WHERE id_user = %s;
-        #     """
-        # cursor.execute(sql_update_user, ( id_user))
-
-        # # INSERT ALAMAT
-        # cursor.execute("""
-        #     INSERT INTO alamat (id_user, id_desa)
-        #     VALUES (%s, %s)
-        # """, (id_user, id_desa))
-
         connection.commit()
-
+        #  menyimpan seluruh data yang diminta dalam register ke database di tabel users
         gambar()
         print("=== Selamat Akun Anda Telah Dibuat ===")
         dashboard()
@@ -1349,11 +1378,13 @@ def data_produsen(role):
     connection, cursor = connect_db() 
     try:
       print()
+    # NAMA
       nama = input("Masukkan Nama: ").strip()
       if not nama:
         print("Nama tidak boleh kosong!")
         input("Tekan enter untuk kembali...")
         return
+    # USERNAME
       usn = input("Masukkan Username: ").strip()
       if not usn:
         print("Username tidak boleh kosong!")
@@ -1369,6 +1400,7 @@ def data_produsen(role):
          clear_terminal()
          print("Username sudah terdaftar, gunakan yang lain.")
          return
+    # PASSWORD
       pw = input("Masukkan Password:  ").strip()
       if not pw:
         print("Password tidak boleh kosong!")
@@ -1380,6 +1412,7 @@ def data_produsen(role):
         clear_terminal()
         print("Password harus lebih dari 8. Silahkan Mulai Kembali")
         return
+    #  NO TELEPON
       no_telp = input("Masukkan No. Telepon: ").strip()
       if not no_telp:
         print("Nomer telepon tidak boleh kosong")
@@ -1405,6 +1438,7 @@ def data_produsen(role):
         INSERT INTO users (nama, username, password, no_telp, role, detail_alamat, id_desa)
          VALUES (%s, %s, %s, %s, %s, %s, %s)
     """
+    #  menyimpan seluruh data yang diminta dalam register ke database di tabel users
     role = 'produsen'
     alamat = 'tidak ada'
     desa = None
