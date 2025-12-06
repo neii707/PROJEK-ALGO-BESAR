@@ -924,40 +924,6 @@ def daftar_pesanan(id_user):
     clear_terminal()
     menu_produsen(id_user)
 
-    # print()
-    # print("=== WELCOME CUSTOMERR ===")
-    # print()
-    # try:
-    #     print("1. Katalog Benih")
-    #     print("2. Keranjang Belanja")
-    #     print("3. Status Transaksi")
-    #     print("4. Riwayat Transaksi")
-    #     print("5. Keluar")
-    #     print()
-    #     pilih = input("Pilih Menu Customer: ")
-
-    #     if pilih == "1":
-    #         Katalog_Benih(id_user)
-    #     elif pilih == "2":
-    #         Keranjang_Belanja(id_user) 
-    #     elif pilih == "3":
-    #         Transaksi(id_user)
-    #     elif pilih == "4":
-    #         Riwayat_Transaksi(id_user)
-    #     elif pilih == "5":
-    #         clear_terminal()
-    #         print('Keluar dari menu Customer')
-    #         print()
-    #         gambar()
-    #         dashboard()
-    #     else :
-    #         clear_terminal()
-    #         print()
-    #         print('=== PILIHAN TIDAK VALID ===')
-    #         print()
-    #         menu_customer(id_user)
-    # except Exception as e :
-    #     print(f"Terjadi Error: {e}")
 # MENU TIAP ROLE
 def menu_admin(id_user):
     print()
@@ -1339,5 +1305,6 @@ print("=== WELCOME TO OUR PLATFORM ===")
 print()
 print()
 dashboard()
+
 
 
